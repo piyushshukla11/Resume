@@ -2,6 +2,13 @@
 
 A weather-reactive portfolio and resume built with Next.js App Router, TypeScript, Tailwind CSS, Motion, and Lenis.
 
+## Multi-page architecture
+
+- **`/` (Portfolio Home)**: Weather-reactive retro landing page featuring the pixel celestial simulation, engineering highlights gateway, practical tooling matrix, competitive programming profiles, and milestone timeline.
+- **`/work` & `/projects` (Engineering Index)**: Dedicated engineering archive webpage featuring all 9 production builds with interactive category tabs (`Systems & low-level`, `AI & full-stack`, `Game dev & graphics`), real-time keyword search, and direct links to case studies.
+- **`/projects/[id]` (Technical Case Studies)**: Dedicated deep-dive webpages for each individual system (e.g. `/projects/polyexecution-studio`, `/projects/voyage`) with problem statements, kernel-level containment specs, architecture stages, code snippets, and verified metrics.
+- **`/contact` (Contact & Profile)**: Direct open communication channels and verified profiles.
+
 ## Local setup
 
 1. Create `.env.local` if you wish to configure admin curation, GitHub webhooks, or custom handle credentials:

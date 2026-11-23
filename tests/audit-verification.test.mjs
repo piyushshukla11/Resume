@@ -161,3 +161,28 @@ test("project-store: state transitions maintain invariants across approved, pend
   assert.equal(s4.approved.length, 1);
   assert.equal(s4.ignored.length, 0);
 });
+
+test("projects: all 9 archived systems have unique IDs, categories, and case study metadata", async () => {
+  const { featuredProjects, getProject } = await import("../lib/projects.ts");
+
+  assert.equal(featuredProjects.length, 9, "Expected 9 archived engineering projects");
+
+  const ids = new Set();
+  const validCategories = new Set(["systems", "ai", "games"]);
+
+  for (const project of featuredProjects) {
+    assert.ok(project.id && typeof project.id === "string", "Project ID must be a non-empty string");
+    assert.ok(!ids.has(project.id), `Duplicate project ID detected: ${project.id}`);
+    ids.add(project.id);
+
+    assert.ok(validCategories.has(project.category), `Invalid category: ${project.category}`);
+    assert.ok(project.title && project.title.length > 0, "Title must be non-empty");
+    assert.ok(project.summary && project.summary.length > 10, "Summary must be descriptive");
+    assert.ok(project.tags && project.tags.length > 0, "Must have at least one tag");
+    assert.ok(project.githubUrl.startsWith("https://github.com/"), "Must have valid GitHub URL");
+
+    // Verify lookup helper
+    const retrieved = getProject(project.id);
+    assert.equal(retrieved?.id, project.id, `getProject failed to find ${project.id}`);
+  }
+});
