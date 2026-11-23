@@ -38,6 +38,10 @@ export default async function ProjectDetailPage({ params }: Props) {
           <span className="brand-caption">PIYUSH SHUKLA / CASE STUDY</span>
         </Link>
         <div className="hud-actions">
+          <Link href="/#work" className="button button-quiet">
+            <ArrowLeft size={13} />
+            <span>Return to Work</span>
+          </Link>
           <Link href="/projects" className="button button-quiet">
             <Layers size={13} />
             <span>All Projects</span>
@@ -236,13 +240,17 @@ export default async function ProjectDetailPage({ params }: Props) {
           <div className="other-projects-grid">
             {otherProjects.map((other) => (
               <Link key={other.id} href={`/projects/${other.id}`} className="other-project-card">
-                <span className="eyebrow">{other.category.toUpperCase()}</span>
-                <h3>{other.title}</h3>
-                <p>{other.subtitle}</p>
-                <span className="other-project-link">
-                  <span>Read case study</span>
-                  <ArrowUpRight size={14} />
-                </span>
+                <div>
+                  <span className="eyebrow">{other.category.toUpperCase()}</span>
+                  <h3>{other.title}</h3>
+                  <p>{other.subtitle}</p>
+                </div>
+                <div className="other-project-link-row">
+                  <span className="card-webpage-btn">
+                    <span>WEBPAGE</span>
+                    <ArrowUpRight size={12} />
+                  </span>
+                </div>
               </Link>
             ))}
           </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "motion/react";
 import { ArrowDownToLine, ArrowRight, ArrowUpRight, Cloud, Command, Github, Linkedin, LocateFixed, Menu, X } from "lucide-react";
@@ -43,6 +44,7 @@ function Clock({ timezone }: { timezone?: string }) {
 }
 
 export function Portfolio() {
+  const router = useRouter();
   const { weather, mode, setMode, minimal, setMinimal, refreshLocation, setLocation, error } = useWeather();
   const [projectId, setProjectId] = useState<string | null>(null);
   const [filter, setFilter] = useState<ProjectCategory | "all">("all");
@@ -97,7 +99,7 @@ export function Portfolio() {
   }, [weather]);
 
   return <div className={`site-shell ${weatherClass}${minimal ? " focus-mode" : ""}`}>
-    <WeatherCanvas onProjectSelect={setProjectId} />
+    <WeatherCanvas onProjectSelect={(id) => router.push(`/projects/${id}`)} />
     <header className="hud-header">
       <a className="brand-lockup" href="#top" aria-label="ME, return to top"><span className="wordmark">ME<span>.</span></span><span className="brand-caption">PIYUSH SHUKLA / PORTFOLIO</span></a>
       <button className="mobile-menu-button" aria-label={mobileMenu ? "Close navigation" : "Open navigation"} onClick={() => setMobileMenu((value) => !value)}>{mobileMenu ? <X size={18} /> : <Menu size={18} />}</button>
@@ -145,12 +147,39 @@ export function Portfolio() {
       <section id="work" className="section-wrap work-section section-anchor" aria-labelledby="work-title">
         <div className="section-heading"><div><p className="eyebrow">01 ❖ SELECTED WORK</p><h2 id="work-title">Engineering index<span>.</span></h2></div><p className="section-aside">Builds shaped by curiosity, constraints,<br />and the details underneath.</p></div>
         <div className="filter-bar" role="group" aria-label="Filter projects">{filters.map((item) => <button key={item.id} onClick={() => setFilter(item.id)} className={filter === item.id ? "is-selected" : ""} aria-pressed={filter === item.id}>{item.label}<span>{item.id === "all" ? projects.length : projects.filter((project) => project.category === item.id).length.toString().padStart(2, "0")}</span></button>)}</div>
-        <div className="project-grid">{shownProjects.map((project, index) => <motion.button key={project.id} className="project-card" onClick={() => setProjectId(project.id)} initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.18 }} transition={{ delay: (index % 2) * 0.08, duration: 0.5 }}>
-          <span className="project-card-top"><span className="project-count">{String(index + 1).padStart(2, "0")} / {project.category.toUpperCase()}</span><span className="project-open"><ArrowUpRight size={16} /></span></span>
-          <span className="project-title">{project.title}</span><span className="project-subtitle">{project.subtitle}</span><span className="project-description">{project.summary}</span>
-          <span className="tag-row">{project.tags.slice(0, 4).map((tag) => <span key={tag} className="tag">{tag}</span>)}</span>
-          <span className="project-card-foot"><span>{project.featured ? "FEATURED CASE STUDY" : "OWNER APPROVED · GITHUB"}</span><span className="card-action-links"><Link href={`/projects/${project.id}`} className="card-page-link" onClick={(e) => e.stopPropagation()} title="Open dedicated project webpage"><span>Webpage</span><ArrowUpRight size={12} /></Link><ArrowRight size={14} /></span></span>
-        </motion.button>)}</div>
+        <div className="project-grid">
+          {shownProjects.map((project, index) => (
+            <motion.div
+              key={project.id}
+              initial={{ opacity: 0, y: 14 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.18 }}
+              transition={{ delay: (index % 2) * 0.08, duration: 0.5 }}
+            >
+              <Link href={`/projects/${project.id}`} className="project-card">
+                <span className="project-card-top">
+                  <span className="project-count">{String(index + 1).padStart(2, "0")} / {project.category.toUpperCase()}</span>
+                  <span className="project-open" title="Open case study webpage"><ArrowUpRight size={16} /></span>
+                </span>
+                <span className="project-title">{project.title}</span>
+                <span className="project-subtitle">{project.subtitle}</span>
+                <span className="project-description">{project.summary}</span>
+                <span className="tag-row">
+                  {project.tags.slice(0, 4).map((tag) => (
+                    <span key={tag} className="tag">{tag}</span>
+                  ))}
+                </span>
+                <span className="project-card-foot">
+                  <span>{project.featured ? "FEATURED CASE STUDY" : "OWNER APPROVED · GITHUB"}</span>
+                  <span className="card-webpage-btn" aria-label={`Open ${project.title} webpage`}>
+                    <span>WEBPAGE</span>
+                    <ArrowUpRight size={13} />
+                  </span>
+                </span>
+              </Link>
+            </motion.div>
+          ))}
+        </div>
         <p className="weather-index-note"><span className="node-mini" /> Interactive weather nodes are active in the sky. Every project is also available here, independent of weather.</p>
       </section>
 

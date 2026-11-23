@@ -58,8 +58,11 @@ export default function ProjectsIndexPage() {
                   ))}
                 </span>
                 <span className="project-card-foot">
-                  <span>EXPLORE CASE STUDY</span>
-                  <ArrowUpRight size={14} />
+                  <span>{project.featured ? "FEATURED CASE STUDY" : "OWNER APPROVED · GITHUB"}</span>
+                  <span className="card-webpage-btn">
+                    <span>WEBPAGE</span>
+                    <ArrowUpRight size={13} />
+                  </span>
                 </span>
               </Link>
             ))}
