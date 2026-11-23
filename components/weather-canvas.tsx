@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Sun } from "lucide-react";
 import { useWeather } from "@/components/weather-provider";
 import { withMode } from "@/lib/weather-state";
 import type { WeatherCondition } from "@/lib/weather";
@@ -11,6 +10,7 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
   const wrapRef = useRef<HTMLDivElement>(null);
   const { weather, mode, minimal } = useWeather();
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [isDialogueOpen, setIsDialogueOpen] = useState(false);
 
   const activeWeather = useMemo(() => (weather ? withMode(weather, mode) : null), [weather, mode]);
   const condition: WeatherCondition = activeWeather?.condition ?? "clear";
@@ -61,14 +61,14 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
     resize();
 
     // =========================================================================
-    // RADIANT 16-BIT PIXEL SUN ENGINE
+    // 1. RADIANT 16-BIT PIXEL SUN ENGINE
     // =========================================================================
     const drawPixelSun = (scx: number, scy: number, t: number, isCalm: boolean) => {
       const isMobile = width < 768;
-      const ps = isMobile ? 3 : 4; // Pixel block scale
+      const ps = isMobile ? 3 : 4;
       const radiusBlocks = 11;
 
-      // 1. Soft Ambient Stepped Pixel Solar Halo
+      // Soft Ambient Stepped Pixel Solar Halo
       for (let gy = -radiusBlocks - 8; gy <= radiusBlocks + 8; gy += 2) {
         for (let gx = -radiusBlocks - 8; gx <= radiusBlocks + 8; gx += 2) {
           const distSq = gx * gx + gy * gy;
@@ -81,7 +81,7 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
         }
       }
 
-      // 2. Concentric Expanding Pixel Rings (Coronal emission shockwaves)
+      // Concentric Expanding Pixel Rings (Coronal emission shockwaves)
       if (!isCalm) {
         for (let ring = 0; ring < 3; ring++) {
           const phase = ((t * 0.0006 + ring * 0.33) % 1);
@@ -95,7 +95,7 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
           }
         }
 
-        // 3. Radiating 8-Bit Solar Rays (8 directional stepped beams)
+        // Radiating 8-Bit Solar Rays (8 directional stepped beams)
         for (let ray = 0; ray < 8; ray++) {
           const rayAngle = (ray * Math.PI) / 4;
           const rayPulse = Math.sin(t * 0.004 + ray * 0.8);
@@ -113,7 +113,7 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
         }
       }
 
-      // 4. Stepped Pixel Sun Core Disc
+      // Stepped Pixel Sun Core Disc
       for (let gy = -radiusBlocks; gy <= radiusBlocks; gy++) {
         for (let gx = -radiusBlocks; gx <= radiusBlocks; gx++) {
           const distSq = gx * gx + gy * gy;
@@ -138,6 +138,51 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
       }
     };
 
+    // =========================================================================
+    // 2. RADIANT 16-BIT PIXEL MOON ENGINE
+    // =========================================================================
+    const drawPixelMoon = (mcx: number, mcy: number) => {
+      const isMobile = width < 768;
+      const ps = isMobile ? 3 : 4;
+      const radiusBlocks = 9;
+
+      // Subtle pixel aura
+      ctx.fillStyle = "rgba(186, 212, 196, 0.16)";
+      for (let gy = -radiusBlocks - 3; gy <= radiusBlocks + 3; gy++) {
+        for (let gx = -radiusBlocks - 3; gx <= radiusBlocks + 3; gx++) {
+          if (gx * gx + gy * gy <= (radiusBlocks + 3) ** 2) {
+            ctx.fillRect(mcx + gx * ps, mcy + gy * ps, ps, ps);
+          }
+        }
+      }
+
+      // Lunar Disc with Stepped Craters
+      for (let gy = -radiusBlocks; gy <= radiusBlocks; gy++) {
+        for (let gx = -radiusBlocks; gx <= radiusBlocks; gx++) {
+          const distSq = gx * gx + gy * gy;
+          if (distSq <= radiusBlocks * radiusBlocks) {
+            const px = mcx + gx * ps;
+            const py = mcy + gy * ps;
+
+            const isCrater1 = (gx === -2 || gx === -3) && (gy === -1 || gy === -2);
+            const isCrater2 = (gx === 1 || gx === 2) && (gy === 2 || gy === 3);
+            const isCrater3 = gx === -1 && gy === 3;
+
+            if (isCrater1 || isCrater2 || isCrater3) {
+              ctx.fillStyle = "#64748b"; // Dark crater
+            } else if (distSq > radiusBlocks * radiusBlocks - 16) {
+              ctx.fillStyle = "#94a3b8"; // Shaded rim
+            } else if (gx < 0 && gy < 0) {
+              ctx.fillStyle = "#ffffff"; // Specular highlight
+            } else {
+              ctx.fillStyle = "#e2e8f0"; // Pale silver body
+            }
+            ctx.fillRect(px, py, ps, ps);
+          }
+        }
+      }
+    };
+
     // Main RAF animation loop
     const draw = (time: number) => {
       frame = requestAnimationFrame(draw);
@@ -147,10 +192,14 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
       const calm = reducedMotion || minimal;
       const isMobile = width < 768;
 
-      const sunX = isMobile ? Math.round(width * 0.78) : Math.round(width * 0.82);
-      const sunY = isMobile ? Math.round(height * 0.22) : Math.round(height * 0.26);
+      const celestialX = isMobile ? Math.round(width * 0.78) : Math.round(width * 0.82);
+      const celestialY = isMobile ? Math.round(height * 0.22) : Math.round(height * 0.26);
 
-      drawPixelSun(sunX, sunY, time, calm);
+      if (night) {
+        drawPixelMoon(celestialX, celestialY);
+      } else {
+        drawPixelSun(celestialX, celestialY, time, calm);
+      }
     };
 
     frame = requestAnimationFrame(draw);
@@ -161,7 +210,7 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
       window.removeEventListener("resize", resize);
       document.removeEventListener("visibilitychange", visibility);
     };
-  }, [minimal, reducedMotion]);
+  }, [minimal, reducedMotion, night]);
 
   return (
     <div
@@ -171,35 +220,75 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
     >
       <canvas ref={canvasRef} aria-hidden="true" className="weather-canvas" />
 
-      {/* Pixelated Celestial Hub - Navigates to Stack */}
-      <button
-        type="button"
-        className="celestial-hub"
-        aria-label="Pixel Sun node. Explore core technical skills."
-        title="Open the tech stack matrix"
-        onClick={() => {
-          onProjectSelect?.("polyexecution-studio");
-          document.getElementById("stack")?.scrollIntoView({ behavior: "smooth" });
-        }}
-      >
-        <Sun size={17} strokeWidth={1.4} />
-        <span className="celestial-label">SOLAR / CORE</span>
-        <span className="celestial-orbit" aria-hidden="true">
-          {["C", "C#", "Java", "Kotlin", "Python", "JavaScript", "SQL", "Go"].map((skill, index) => {
-            const angle = index * 45;
-            return (
-              <span
-                key={skill}
-                style={{
-                  transform: `rotate(${angle}deg) translateX(72px) rotate(-${angle}deg)`,
+      {/* Interactive Celestial Anchor (Sun / Moon) - Triggers Dialogue on Press */}
+      <div className="celestial-anchor">
+        <button
+          type="button"
+          className="celestial-hitbox"
+          aria-label={night ? "Pixel Moon. Press to view core stack & biography." : "Pixel Sun. Press to view core stack & biography."}
+          aria-expanded={isDialogueOpen}
+          onClick={() => setIsDialogueOpen((prev) => !prev)}
+        >
+          <span className="sr-only">{night ? "Toggle Lunar Profile" : "Toggle Solar Profile"}</span>
+        </button>
+
+        {/* Retro Pixel Dialogue Popup - Appears only when pressed */}
+        {isDialogueOpen && (
+          <div className="celestial-dialogue-card" role="dialog" aria-label="Technical Profile">
+            <div className="dialogue-header">
+              <span className="dialogue-badge">
+                {night ? "🌙 LUNAR SYSTEM" : "☀️ SOLAR SYSTEM"}
+              </span>
+              <button
+                type="button"
+                className="dialogue-close-btn"
+                aria-label="Close dialogue"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsDialogueOpen(false);
                 }}
               >
-                {skill}
-              </span>
-            );
-          })}
-        </span>
-      </button>
+                ✕
+              </button>
+            </div>
+
+            <div className="dialogue-body">
+              <strong className="dialogue-name">PIYUSH SHUKLA</strong>
+              <p className="dialogue-role">
+                {night
+                  ? "Systems & Low-Level Architecture · Night Owl Mode"
+                  : "Computer Science Undergrad · Systems, AI & Games"}
+              </p>
+
+              <div className="dialogue-stack-wrap">
+                <span className="dialogue-stack-heading">CORE TECHNICAL STACK:</span>
+                <div className="dialogue-stack-chips">
+                  {(night
+                    ? ["C", "C++", "Linux Kernel", "Process Isolation", "Networking", "Go", "Rust", "Systems"]
+                    : ["C", "C#", "Java", "Kotlin", "Python", "JavaScript", "SQL", "Go", "Shaders"]
+                  ).map((skill) => (
+                    <span key={skill} className="dialogue-stack-chip">
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              className="dialogue-action-btn"
+              onClick={() => {
+                setIsDialogueOpen(false);
+                onProjectSelect?.("polyexecution-studio");
+                document.getElementById("stack")?.scrollIntoView({ behavior: "smooth" });
+              }}
+            >
+              <span>EXPLORE TECH MATRIX ↓</span>
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

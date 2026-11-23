@@ -129,72 +129,177 @@ button { color: inherit; }
   image-rendering: pixelated;
   image-rendering: crisp-edges;
 }
-.celestial-hub {
+.celestial-anchor {
   position: absolute;
   top: 26%;
   left: 82%;
-  z-index: 3;
-  display: grid;
+  z-index: 10;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+}
+
+.celestial-hitbox {
   width: 96px;
   height: 96px;
-  place-items: center;
-  padding: 0;
   border: none;
-  border-radius: 0;
   background: transparent;
-  color: #fef08a;
   cursor: pointer;
+  border-radius: 50%;
   pointer-events: auto;
-  transform: translate(-50%, -50%);
-  transition: transform .2s ease;
-  box-shadow: none;
+  outline: none;
+  transition: transform 0.2s ease, filter 0.2s ease;
 }
-.celestial-hub svg {
-  display: none;
-}
-.celestial-hub:hover, .celestial-hub:focus-visible {
-  transform: translate(-50%, -50%) scale(1.08);
-}
-.weather-layer.is-night .celestial-hub {
-  border: none;
-  box-shadow: none;
-}
-.celestial-label {
-  position: absolute;
-  top: calc(100% + 7px);
-  left: 50%;
-  color: #fde68a;
-  font: 8px var(--font-pixel-heading);
-  letter-spacing: .08em;
-  white-space: nowrap;
-  transform: translateX(-50%);
-  text-shadow: 1px 1px 0 #000;
-}
-.weather-layer.is-night .celestial-label { color: #bae6fd; }
 
-.celestial-orbit {
-  position: absolute;
-  inset: -23px;
-  border: 2px dashed rgba(254, 240, 138, 0.4);
-  border-radius: 0;
-  opacity: 0;
-  scale: .72;
-  transition: opacity .25s ease, scale .25s cubic-bezier(.22,1,.36,1);
-  pointer-events: none;
+.celestial-hitbox:hover,
+.celestial-hitbox:focus-visible {
+  transform: scale(1.08);
+  filter: drop-shadow(0 0 16px rgba(251, 191, 36, 0.5));
 }
-.celestial-hub:hover .celestial-orbit, .celestial-hub:focus-visible .celestial-orbit { opacity: 1; scale: 1; }
-.celestial-orbit > span {
+
+.weather-layer.is-night .celestial-hitbox:hover,
+.weather-layer.is-night .celestial-hitbox:focus-visible {
+  filter: drop-shadow(0 0 16px rgba(186, 230, 253, 0.55));
+}
+
+/* Retro Pixel Dialogue Popup on Press */
+.celestial-dialogue-card {
   position: absolute;
   top: 50%;
-  left: 50%;
-  padding: 4px 6px;
-  border: 2px solid rgba(254, 240, 138, 0.5);
-  border-radius: 0;
-  background: rgba(11, 22, 38, 0.95);
-  color: #fef08a;
+  right: calc(100% + 18px);
+  transform: translateY(-50%);
+  width: 300px;
+  background: rgba(11, 22, 38, 0.98);
+  border: 3px solid #facc15;
+  box-shadow: 5px 5px 0 #000;
+  padding: 14px 16px;
+  color: #f8fafc;
+  z-index: 50;
+  pointer-events: auto;
+  animation: pixelDialoguePop 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.weather-layer.is-night .celestial-dialogue-card {
+  border-color: #38bdf8;
+}
+
+@keyframes pixelDialoguePop {
+  0% {
+    opacity: 0;
+    transform: translateY(-50%) scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
+}
+
+.dialogue-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  border-bottom: 2px solid rgba(250, 204, 21, 0.3);
+  padding-bottom: 6px;
+}
+
+.weather-layer.is-night .dialogue-header {
+  border-bottom-color: rgba(56, 189, 248, 0.3);
+}
+
+.dialogue-badge {
+  font: 9px var(--font-pixel-heading);
+  color: #facc15;
+  letter-spacing: 0.08em;
+}
+
+.weather-layer.is-night .dialogue-badge {
+  color: #38bdf8;
+}
+
+.dialogue-close-btn {
+  background: transparent;
+  border: 2px solid #64748b;
+  color: #cbd5e1;
+  font: 10px var(--font-pixel-heading);
+  padding: 2px 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.dialogue-close-btn:hover,
+.dialogue-close-btn:focus-visible {
+  border-color: #ef4444;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.15);
+}
+
+.dialogue-name {
+  font: 11px var(--font-pixel-title);
+  color: #ffffff;
+  letter-spacing: 0.06em;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.dialogue-role {
+  font: 10px var(--font-pixel-body);
+  color: #94a3b8;
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+
+.dialogue-stack-heading {
   font: 8px var(--font-pixel-heading);
-  white-space: nowrap;
+  color: #fde68a;
+  letter-spacing: 0.08em;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.weather-layer.is-night .dialogue-stack-heading {
+  color: #bae6fd;
+}
+
+.dialogue-stack-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.dialogue-stack-chip {
+  font: 8px var(--font-pixel-heading);
+  padding: 3px 6px;
+  background: rgba(15, 29, 48, 0.95);
+  border: 1px solid rgba(250, 204, 21, 0.4);
+  color: #fef08a;
   box-shadow: 2px 2px 0 #000;
+}
+
+.weather-layer.is-night .dialogue-stack-chip {
+  border-color: rgba(56, 189, 248, 0.4);
+  color: #bae6fd;
+}
+
+.dialogue-action-btn {
+  width: 100%;
+  padding: 8px 10px;
+  font: 9px var(--font-pixel-heading);
+  letter-spacing: 0.06em;
+  background: #22c55e;
+  color: #022c22;
+  border: 2px solid #4ade80;
+  box-shadow: 3px 3px 0 #000;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.15s ease;
+}
+
+.dialogue-action-btn:hover,
+.dialogue-action-btn:focus-visible {
+  background: #4ade80;
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 #000;
 }
 .weather-node { position: absolute; z-index: 2; display: grid; place-items: center; width: 27px; height: 27px; padding: 0; border: 1px solid rgba(220, 231, 222, .34); border-radius: 50%; background: rgba(156, 195, 174, .11); color: var(--paper); cursor: pointer; pointer-events: auto; transform: translate(-50%, -50%); transition: border-color .25s ease, background .25s ease, scale .25s ease; }
 .weather-node:hover, .weather-node.is-hovered, .weather-node:focus-visible { border-color: rgba(209, 233, 216, .8); background: rgba(177, 215, 191, .2); scale: 1.1; }
@@ -1078,7 +1183,13 @@ main, .site-footer { position: relative; z-index: 3; }
   .project-drawer { padding: 22px 21px 30px; }
   .drawer-index { margin-top: 30px; }
   .admin-drawer h2 { font-size: 32px; }
-  .celestial-hub { top: 22%; left: 78%; }
+  .celestial-anchor { top: 22%; left: 78%; }
+  .celestial-dialogue-card {
+    top: calc(100% + 14px);
+    right: -12px;
+    transform: none;
+    width: min(290px, 86vw);
+  }
 }
 @media (max-width: 390px) {
   .environment-pill { gap: 5px; font-size: 7px; }
