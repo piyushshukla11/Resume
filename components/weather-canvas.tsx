@@ -275,17 +275,28 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
               </div>
             </div>
 
-            <button
-              type="button"
-              className="dialogue-action-btn"
-              onClick={() => {
-                setIsDialogueOpen(false);
-                onProjectSelect?.("polyexecution-studio");
-                document.getElementById("stack")?.scrollIntoView({ behavior: "smooth" });
-              }}
-            >
-              <span>EXPLORE TECH MATRIX ↓</span>
-            </button>
+            <div className="dialogue-btn-row">
+              <button
+                type="button"
+                className="dialogue-action-btn"
+                onClick={() => {
+                  setIsDialogueOpen(false);
+                  document.getElementById("stack")?.scrollIntoView({ behavior: "smooth" });
+                }}
+              >
+                <span>EXPLORE TECH MATRIX ↓</span>
+              </button>
+              <button
+                type="button"
+                className="dialogue-action-btn dialogue-action-btn-alt"
+                onClick={() => {
+                  setIsDialogueOpen(false);
+                  onProjectSelect?.("work");
+                }}
+              >
+                <span>OPEN WORK INDEX ↗</span>
+              </button>
+            </div>
           </div>
         )}
       </div>

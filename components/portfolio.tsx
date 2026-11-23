@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { motion } from "motion/react";
 import { ArrowDownToLine, ArrowRight, ArrowUpRight, Cloud, Command, Github, Linkedin, LocateFixed, Menu, X } from "lucide-react";
 import { useWeather } from "@/components/weather-provider";
 import { WeatherCanvas } from "@/components/weather-canvas";
@@ -11,15 +10,12 @@ import { ProjectDrawer } from "@/components/project-drawer";
 import { AdminDrawer } from "@/components/admin-drawer";
 import { CommandPalette } from "@/components/command-palette";
 import { featuredProjects } from "@/lib/projects";
-import type { PortfolioProject, ProjectCategory } from "@/lib/projects";
+import type { PortfolioProject } from "@/lib/projects";
 import type { WeatherMode } from "@/lib/weather";
 
 const modes: { id: WeatherMode; label: string }[] = [
   { id: "auto", label: "Live weather" }, { id: "rain", label: "Rain" }, { id: "clear-day", label: "Clear day" },
   { id: "clear-night", label: "Clear night" }, { id: "cloudy", label: "Cloud cover" }, { id: "snow", label: "Snow" }, { id: "mist", label: "Mist" },
-];
-const filters: { id: ProjectCategory | "all"; label: string }[] = [
-  { id: "all", label: "All work" }, { id: "systems", label: "Systems & low-level" }, { id: "ai", label: "AI & full-stack" }, { id: "games", label: "Game dev & graphics" },
 ];
 const stacks = [
   { label: "SYSTEMS & CORE", items: ["C", "C++", "Java", "Kotlin", "Go", "Linux kernel primitives", "Process isolation", "Networking"] },
@@ -47,7 +43,6 @@ export function Portfolio() {
   const router = useRouter();
   const { weather, mode, setMode, minimal, setMinimal, refreshLocation, setLocation, error } = useWeather();
   const [projectId, setProjectId] = useState<string | null>(null);
-  const [filter, setFilter] = useState<ProjectCategory | "all">("all");
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [adminOpen, setAdminOpen] = useState(false);
   const [curated, setCurated] = useState<PortfolioProject[]>([]);
@@ -58,7 +53,6 @@ export function Portfolio() {
   const leetcodeUsername = process.env.NEXT_PUBLIC_LEETCODE_USERNAME;
   const codechefUsername = process.env.NEXT_PUBLIC_CODECHEF_USERNAME;
   const projects = useMemo(() => [...featuredProjects, ...curated], [curated]);
-  const shownProjects = filter === "all" ? projects : projects.filter((project) => project.category === filter);
 
   useEffect(() => {
     let alive = true;
@@ -99,12 +93,16 @@ export function Portfolio() {
   }, [weather]);
 
   return <div className={`site-shell ${weatherClass}${minimal ? " focus-mode" : ""}`}>
-    <WeatherCanvas onProjectSelect={(id) => router.push(`/projects/${id}`)} />
+    <WeatherCanvas onProjectSelect={(target) => router.push(target === "work" ? "/work" : `/projects/${target}`)} />
     <header className="hud-header">
       <a className="brand-lockup" href="#top" aria-label="ME, return to top"><span className="wordmark">ME<span>.</span></span><span className="brand-caption">PIYUSH SHUKLA / PORTFOLIO</span></a>
       <button className="mobile-menu-button" aria-label={mobileMenu ? "Close navigation" : "Open navigation"} onClick={() => setMobileMenu((value) => !value)}>{mobileMenu ? <X size={18} /> : <Menu size={18} />}</button>
       <nav className={`primary-nav${mobileMenu ? " is-open" : ""}`} aria-label="Main navigation">
-        {["Work", "Stack", "Experience", "Competitive", "Contact"].map((label) => <a key={label} href={`#${label.toLowerCase()}`} onClick={() => setMobileMenu(false)}>{label}</a>)}
+        <Link href="/work" onClick={() => setMobileMenu(false)}>Work</Link>
+        <a href="#stack" onClick={() => setMobileMenu(false)}>Stack</a>
+        <a href="#competitive" onClick={() => setMobileMenu(false)}>Competitive</a>
+        <a href="#experience" onClick={() => setMobileMenu(false)}>Experience</a>
+        <Link href="/contact" onClick={() => setMobileMenu(false)}>Contact</Link>
       </nav>
       <div className="hud-actions">
         <div className="weather-control"><label htmlFor="weather-mode" className="sr-only">Weather simulator</label><select id="weather-mode" value={mode} onChange={(event) => setMode(event.target.value as WeatherMode)} aria-label="Weather simulator">{modes.map((item) => <option value={item.id} key={item.id}>{item.label}</option>)}</select><Cloud size={14} /></div>
@@ -138,49 +136,107 @@ export function Portfolio() {
           <p className="eyebrow hero-eyebrow"><span className="status-light" /> ❖ BUILDING SYSTEMS THAT HOLD UP ❖</p>
           <h1 id="hero-title">I make complex<br />systems feel <em>simple.</em></h1>
           <p className="hero-copy">I’m Piyush Shukla — a computer science undergrad drawn to the layers beneath the interface. I build execution systems, useful AI, and playful worlds.</p>
-          <div className="hero-actions"><a className="button button-primary" href="#work">Explore the index <ArrowRight size={15} /></a><a className="button button-outline" href="https://github.com/piyushshukla11" target="_blank" rel="noreferrer"><Github size={15} /> GitHub <ArrowUpRight size={13} /></a></div>
-          <p className="hero-hint"><span className="hint-mark">❖</span> 8-bit weather engine active. Explore the selected engineering index below.</p>
+          <div className="hero-actions"><Link className="button button-primary" href="/work">Explore the index <ArrowRight size={15} /></Link><a className="button button-outline" href="https://github.com/piyushshukla11" target="_blank" rel="noreferrer"><Github size={15} /> GitHub <ArrowUpRight size={13} /></a></div>
+          <p className="hero-hint"><span className="hint-mark">❖</span> 8-bit weather engine active. Engineering index is available as a dedicated archive.</p>
         </div>
         <a className="scroll-cue" href="#work"><span /> SCROLL TO EXPLORE</a>
       </section>
 
       <section id="work" className="section-wrap work-section section-anchor" aria-labelledby="work-title">
-        <div className="section-heading"><div><p className="eyebrow">01 ❖ SELECTED WORK</p><h2 id="work-title">Engineering index<span>.</span></h2></div><p className="section-aside">Builds shaped by curiosity, constraints,<br />and the details underneath.</p></div>
-        <div className="filter-bar" role="group" aria-label="Filter projects">{filters.map((item) => <button key={item.id} onClick={() => setFilter(item.id)} className={filter === item.id ? "is-selected" : ""} aria-pressed={filter === item.id}>{item.label}<span>{item.id === "all" ? projects.length : projects.filter((project) => project.category === item.id).length.toString().padStart(2, "0")}</span></button>)}</div>
-        <div className="project-grid">
-          {shownProjects.map((project, index) => (
-            <motion.div
-              key={project.id}
-              initial={{ opacity: 0, y: 14 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.18 }}
-              transition={{ delay: (index % 2) * 0.08, duration: 0.5 }}
-            >
-              <Link href={`/projects/${project.id}`} className="project-card">
-                <span className="project-card-top">
-                  <span className="project-count">{String(index + 1).padStart(2, "0")} / {project.category.toUpperCase()}</span>
-                  <span className="project-open" title="Open case study webpage"><ArrowUpRight size={16} /></span>
-                </span>
-                <span className="project-title">{project.title}</span>
-                <span className="project-subtitle">{project.subtitle}</span>
-                <span className="project-description">{project.summary}</span>
-                <span className="tag-row">
-                  {project.tags.slice(0, 4).map((tag) => (
-                    <span key={tag} className="tag">{tag}</span>
-                  ))}
-                </span>
-                <span className="project-card-foot">
-                  <span>{project.featured ? "FEATURED CASE STUDY" : "OWNER APPROVED · GITHUB"}</span>
-                  <span className="card-webpage-btn" aria-label={`Open ${project.title} webpage`}>
-                    <span>WEBPAGE</span>
-                    <ArrowUpRight size={13} />
-                  </span>
-                </span>
-              </Link>
-            </motion.div>
-          ))}
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">01 ❖ SELECTED WORK</p>
+            <h2 id="work-title">Engineering index<span>.</span></h2>
+          </div>
+          <p className="section-aside">Builds shaped by curiosity, constraints,<br />and the details underneath.</p>
         </div>
-        <p className="weather-index-note"><span className="node-mini" /> Interactive weather nodes are active in the sky. Every project is also available here, independent of weather.</p>
+
+        {/* Portal Gateway to Dedicated Engineering Index */}
+        <div className="index-gateway-card">
+          <div className="index-gateway-header">
+            <div className="gateway-badge">
+              <span className="status-light" />
+              <span>DEDICATED ARCHIVE · 09 PRODUCTION SYSTEMS</span>
+            </div>
+            <Link href="/work" className="button button-primary">
+              <span>Open Dedicated Index</span>
+              <ArrowRight size={14} />
+            </Link>
+          </div>
+
+          <div className="gateway-domain-grid">
+            <div className="gateway-domain-item">
+              <span className="domain-index">01</span>
+              <h4>Systems & Low-Level</h4>
+              <p>Linux kernel namespaces, seccomp BPF isolation, and custom runtime execution engines.</p>
+              <span className="domain-count">05 SYSTEMS</span>
+            </div>
+            <div className="gateway-domain-item">
+              <span className="domain-index">02</span>
+              <h4>Planetary AI & Vision</h4>
+              <p>Chandrayaan-2 correspondence, YOLOv9 crater detection, and SPICE ephemeris pipelines.</p>
+              <span className="domain-count">04 SYSTEMS</span>
+            </div>
+            <div className="gateway-domain-item">
+              <span className="domain-index">03</span>
+              <h4>Graphics & Spatial CAD</h4>
+              <p>3D spatial mathematical simulations, CesiumJS planetary viewer, and cadastre integrity.</p>
+              <span className="domain-count">VERIFIED</span>
+            </div>
+          </div>
+
+          {/* Featured flagship preview cards */}
+          <div className="gateway-preview-section">
+            <div className="gateway-preview-title">
+              <span>FEATURED HIGHLIGHTS</span>
+              <Link href="/work" className="gateway-view-all">
+                <span>View all 9 systems in index</span>
+                <ArrowRight size={13} />
+              </Link>
+            </div>
+            <div className="project-grid">
+              {featuredProjects.slice(0, 2).map((project, index) => (
+                <Link key={project.id} href={`/projects/${project.id}`} className="project-card">
+                  <span className="project-card-top">
+                    <span className="project-count">{String(index + 1).padStart(2, "0")} / {project.category.toUpperCase()}</span>
+                    <span className="project-open" title="Open case study webpage"><ArrowUpRight size={16} /></span>
+                  </span>
+                  <span className="project-title">{project.title}</span>
+                  <span className="project-subtitle">{project.subtitle}</span>
+                  <span className="project-description">{project.summary}</span>
+                  <span className="tag-row">
+                    {project.tags.slice(0, 4).map((tag) => (
+                      <span key={tag} className="tag">{tag}</span>
+                    ))}
+                  </span>
+                  <span className="project-card-foot">
+                    <span>{project.featured ? "FEATURED CASE STUDY" : "OWNER APPROVED · GITHUB"}</span>
+                    <span className="card-webpage-btn" aria-label={`Open ${project.title} webpage`}>
+                      <span>WEBPAGE</span>
+                      <ArrowUpRight size={13} />
+                    </span>
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Launchpad Banner */}
+          <div className="index-launchpad-row">
+            <div className="launchpad-text">
+              <strong>Complete Architecture Archive</strong>
+              <p>Browse all 9 projects with interactive category filters, real-time keyword search, and deep case studies.</p>
+            </div>
+            <Link href="/work" className="index-launchpad-btn">
+              <span>OPEN FULL ENGINEERING INDEX (09)</span>
+              <ArrowRight size={16} />
+            </Link>
+          </div>
+        </div>
+
+        <p className="weather-index-note">
+          <span className="node-mini" /> Interactive weather nodes are active in the sky. All systems are cataloged in the dedicated engineering index.
+        </p>
       </section>
 
       <section id="stack" className="section-wrap stack-section section-anchor" aria-labelledby="stack-title">
@@ -210,7 +266,7 @@ export function Portfolio() {
       </section>
     </main>
 
-    <footer className="site-footer"><a href="#top" className="footer-brand">ME<span>.</span></a><span>PIYUSH SHUKLA · SYSTEMS / GAMES / SOFTWARE</span><div><a href="https://github.com/piyushshukla11" target="_blank" rel="noreferrer">GITHUB</a><a href="https://www.linkedin.com/in/piyush-shukla-dev" target="_blank" rel="noreferrer">LINKEDIN</a><button onClick={() => setPaletteOpen(true)}><Command size={12} /> COMMANDS</button></div><span className="footer-year">© {new Date().getFullYear()}</span></footer>
+    <footer className="site-footer"><a href="#top" className="footer-brand">ME<span>.</span></a><span>PIYUSH SHUKLA · SYSTEMS / GAMES / SOFTWARE</span><div><Link href="/work">WORK</Link><Link href="/contact">CONTACT</Link><a href="https://github.com/piyushshukla11" target="_blank" rel="noreferrer">GITHUB</a><a href="https://www.linkedin.com/in/piyush-shukla-dev" target="_blank" rel="noreferrer">LINKEDIN</a><button onClick={() => setPaletteOpen(true)}><Command size={12} /> COMMANDS</button></div><span className="footer-year">© {new Date().getFullYear()}</span></footer>
 
     <button className="command-hint" onClick={() => setPaletteOpen(true)} aria-label="Open command palette"><Command size={14} /><span>COMMANDS</span><kbd>⌘ K</kbd></button>
     <ProjectDrawer projectId={projectId} projects={projects} onClose={() => setProjectId(null)} />
