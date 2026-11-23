@@ -324,8 +324,9 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
 
         // Hanging root spikes
         ctx.fillStyle = rockDark;
-        ctx.fillRect(cx - 3, cy + iHeight, 3, 5);
-        ctx.fillRect(cx + 5, cy + iHeight - 3, 2, 6);
+        ctx.fillRect(cx - 3, cy + iHeight, 3, 6);
+        ctx.fillRect(cx + 6, cy + iHeight - 2, 2, 8);
+        ctx.fillRect(cx - Math.round(iWidth * 0.25), cy + Math.round(iHeight * 0.7), 2, 6);
 
         // Grassy top turf
         ctx.fillStyle = turfTop;
@@ -336,19 +337,19 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
         // Mini Voxel Sakura Tree on island
         if (hasTree) {
           const treeX = cx - Math.round(iWidth * 0.2);
-          const treeY = cy - 14;
+          const treeY = cy - 16;
           ctx.fillStyle = "#78350f";
-          ctx.fillRect(treeX, cy - 6, 3, 6);
+          ctx.fillRect(treeX, cy - 7, 3, 7);
           ctx.fillStyle = sakuraPink;
-          ctx.fillRect(treeX - 6, treeY, 15, 8);
+          ctx.fillRect(treeX - 7, treeY, 17, 10);
           ctx.fillStyle = "#fdf2f8";
-          ctx.fillRect(treeX - 4, treeY - 2, 11, 4);
+          ctx.fillRect(treeX - 5, treeY - 2, 13, 5);
         }
 
         // Cascading Pixel Waterfall
         if (fallHeight > 0) {
           const fallX = cx + Math.round(iWidth * 0.15);
-          const flowOffset = Math.floor((t * 0.02) % 4);
+          const flowOffset = Math.floor((t * 0.022) % 4);
           for (let f = 0; f < fallHeight; f += 2) {
             const isWhite = (f + flowOffset) % 6 < 2;
             ctx.fillStyle = isWhite ? waterWhite : waterCyan;
@@ -358,38 +359,162 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
             }
           }
           // Mist puff at waterfall base
-          ctx.fillStyle = "rgba(224, 242, 254, 0.35)";
-          ctx.fillRect(fallX - 4, cy + 4 + fallHeight, 10, 4);
-          ctx.fillRect(fallX - 2, cy + 2 + fallHeight, 6, 2);
+          ctx.fillStyle = "rgba(224, 242, 254, 0.4)";
+          ctx.fillRect(fallX - 5, cy + 4 + fallHeight, 12, 4);
+          ctx.fillRect(fallX - 3, cy + 2 + fallHeight, 8, 2);
         }
       };
 
       const isMobile = w < 768;
+
       // Island 1: Upper-left sky (with tiny sakura tree and waterfall)
-      const isl1X = isMobile ? Math.round(w * 0.18) : Math.round(w * 0.15);
-      const isl1Y = Math.round(h * 0.12);
-      drawIsland(isl1X, isl1Y, 56, 32, true, 55);
+      const isl1X = isMobile ? Math.round(w * 0.16) : Math.round(w * 0.14);
+      const isl1Y = Math.round(h * 0.14);
+      drawIsland(isl1X, isl1Y, isMobile ? 48 : 64, 34, true, 55);
 
-      // Island 2: Upper-right sky (small floating island with waterfall)
-      const isl2X = isMobile ? Math.round(w * 0.86) : Math.round(w * 0.90);
-      const isl2Y = Math.round(h * 0.10);
-      drawIsland(isl2X, isl2Y, 44, 24, false, 40);
+      // Island 2: Upper-right sky (floating island with waterfall)
+      const isl2X = isMobile ? Math.round(w * 0.88) : Math.round(w * 0.91);
+      const isl2Y = Math.round(h * 0.11);
+      drawIsland(isl2X, isl2Y, isMobile ? 40 : 54, 28, false, 45);
 
-      // Island 3: Distant majestic floating citadel (desktop only, above horizon)
+      // Island 4: Mid-left drifting island
       if (!isMobile) {
-        const isl3X = Math.round(w * 0.52);
-        const isl3Y = Math.round(h * 0.28);
-        drawIsland(isl3X, isl3Y, 84, 46, false, 65);
-        // Castle spires on citadel
-        ctx.fillStyle = isNight ? "#1e293b" : "#334155";
-        ctx.fillRect(isl3X - 16, isl3Y - 20, 8, 20);
-        ctx.fillRect(isl3X - 2, isl3Y - 28, 10, 28);
-        ctx.fillRect(isl3X + 14, isl3Y - 16, 7, 16);
-        // Spire tips
-        ctx.fillStyle = isNight ? "#93c5fd" : "#38bdf8";
-        ctx.fillRect(isl3X - 14, isl3Y - 24, 4, 4);
-        ctx.fillRect(isl3X, isl3Y - 33, 6, 5);
-        ctx.fillRect(isl3X + 16, isl3Y - 20, 3, 4);
+        const isl4X = Math.round(w * 0.28);
+        const isl4Y = Math.round(h * 0.36);
+        drawIsland(isl4X, isl4Y, 52, 26, false, 35);
+      }
+
+      // Island 3: Distant Grand Floating Voxel Sky Citadel (Centerpiece of the sky!)
+      const isl3X = isMobile ? Math.round(w * 0.55) : Math.round(w * 0.58);
+      const isl3Y = isMobile ? Math.round(h * 0.30) : Math.round(h * 0.36);
+      const citadelW = isMobile ? 110 : 190;
+      const citadelH = isMobile ? 48 : 82;
+      const citadelBob = Math.sin(t * 0.0012) * 4;
+      const ccY = Math.round(isl3Y + citadelBob);
+
+      // A. Glowing Celestial Halo Disc behind the Citadel (like in Yugantar!)
+      const haloRadius = isMobile ? 56 : 96;
+      const haloColor = isNight ? "rgba(224, 242, 254, 0.32)" : "rgba(254, 240, 138, 0.45)";
+      ctx.fillStyle = haloColor;
+      for (let r = -haloRadius; r <= haloRadius; r += 3) {
+        const span = Math.round(Math.sqrt(Math.max(0, haloRadius * haloRadius - r * r)));
+        ctx.fillRect(isl3X - span, ccY - 14 + r, span * 2, 3);
+      }
+      // Outer halo aura rim
+      ctx.fillStyle = isNight ? "rgba(147, 197, 253, 0.18)" : "rgba(245, 158, 11, 0.22)";
+      for (let r = -haloRadius - 6; r <= haloRadius + 6; r += 4) {
+        const span = Math.round(Math.sqrt(Math.max(0, (haloRadius + 6) ** 2 - r * r)));
+        ctx.fillRect(isl3X - span, ccY - 14 + r, span * 2, 4);
+      }
+
+      // B. Tapered Inverted Rock Citadel Mountain Base
+      for (let row = 0; row < citadelH; row += 3) {
+        const progress = row / citadelH;
+        const rowW = Math.round(citadelW * (1 - progress * 0.85));
+        const rx = isl3X - Math.round(rowW / 2);
+        const ry = ccY + row;
+        ctx.fillStyle = progress > 0.65 ? rockDark : rockBody;
+        ctx.fillRect(rx, ry, rowW, 3);
+        // Strata rock highlights
+        if (row % 6 === 0) {
+          ctx.fillStyle = isNight ? "#334155" : "#475569";
+          ctx.fillRect(rx + 6, ry, Math.round(rowW * 0.4), 2);
+        }
+      }
+
+      // C. Stalactite spikes hanging from citadel bottom
+      ctx.fillStyle = rockDark;
+      ctx.fillRect(isl3X - 8, ccY + citadelH, 4, 12);
+      ctx.fillRect(isl3X + 12, ccY + citadelH - 4, 3, 10);
+      ctx.fillRect(isl3X - 22, ccY + citadelH - 8, 3, 8);
+      ctx.fillRect(isl3X + 28, ccY + citadelH - 6, 4, 9);
+
+      // D. Grassy Top Turf with Floral Pixels
+      ctx.fillStyle = turfTop;
+      ctx.fillRect(isl3X - Math.round(citadelW / 2), ccY, citadelW, 4);
+      ctx.fillStyle = turfFront;
+      ctx.fillRect(isl3X - Math.round(citadelW / 2), ccY + 4, citadelW, 4);
+      // Small voxel flower specks on grass
+      ctx.fillStyle = "#fef08a";
+      ctx.fillRect(isl3X - Math.round(citadelW * 0.35), ccY - 1, 2, 2);
+      ctx.fillRect(isl3X + Math.round(citadelW * 0.28), ccY - 1, 2, 2);
+      ctx.fillStyle = "#f472b6";
+      ctx.fillRect(isl3X - Math.round(citadelW * 0.15), ccY - 1, 2, 2);
+      ctx.fillRect(isl3X + Math.round(citadelW * 0.42), ccY - 1, 2, 2);
+
+      // E. Majestic Castle Towers & Spires (7 Staggered Voxel Towers)
+      const towerBaseColor = isNight ? "#1e293b" : "#334155";
+      const towerRoofColor = isNight ? "#93c5fd" : "#38bdf8";
+      const windowColor = "#fef08a";
+
+      const towers = [
+        { dx: 0, w: isMobile ? 12 : 20, h: isMobile ? 36 : 60, roofH: isMobile ? 12 : 20 },   // Central Grand Cathedral Spire
+        { dx: -24, w: isMobile ? 10 : 16, h: isMobile ? 26 : 45, roofH: isMobile ? 10 : 16 }, // Left Main Tower
+        { dx: 24, w: isMobile ? 10 : 16, h: isMobile ? 28 : 48, roofH: isMobile ? 10 : 16 },  // Right Main Tower
+        { dx: -48, w: isMobile ? 8 : 12, h: isMobile ? 18 : 32, roofH: isMobile ? 7 : 12 },   // Left Outer Tower
+        { dx: 48, w: isMobile ? 8 : 12, h: isMobile ? 20 : 34, roofH: isMobile ? 7 : 12 },    // Right Outer Tower
+        { dx: -68, w: isMobile ? 6 : 9, h: isMobile ? 12 : 22, roofH: isMobile ? 5 : 9 },     // Left Flank Turret
+        { dx: 68, w: isMobile ? 6 : 9, h: isMobile ? 13 : 24, roofH: isMobile ? 5 : 9 },      // Right Flank Turret
+      ];
+
+      for (const tow of towers) {
+        const tx = isl3X + Math.round(tow.dx * (isMobile ? 0.6 : 1));
+        const tw = tow.w;
+        const th = tow.h;
+        const ty = ccY - th;
+
+        // Tower Body
+        ctx.fillStyle = towerBaseColor;
+        ctx.fillRect(tx - Math.round(tw / 2), ty, tw, th);
+
+        // Stepped Spire Roof
+        ctx.fillStyle = towerRoofColor;
+        const rSteps = tow.roofH;
+        for (let s = 0; s < rSteps; s += 2) {
+          const frac = s / rSteps;
+          const sw = Math.max(2, Math.round(tw * (1 - frac)));
+          ctx.fillRect(tx - Math.round(sw / 2), ty - s - 2, sw, 2);
+        }
+        // Crystal Spire Finial Tip
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(tx - 1, ty - rSteps - 3, 2, 3);
+
+        // Voxel Light Windows
+        ctx.fillStyle = windowColor;
+        ctx.fillRect(tx - 1, ty + Math.round(th * 0.35), 2, 3);
+        if (th > 35) {
+          ctx.fillRect(tx - 1, ty + Math.round(th * 0.65), 2, 3);
+        }
+      }
+
+      // F. 3 Majestic Cascading Waterfalls
+      const flowOffset = Math.floor((t * 0.024) % 4);
+      const waterfalls = [
+        { dx: -4, fallH: isMobile ? 55 : 95, w: isMobile ? 2 : 4 }, // Central main torrent
+        { dx: -38, fallH: isMobile ? 40 : 70, w: 2 },                // Left torrent
+        { dx: 36, fallH: isMobile ? 44 : 75, w: 2 },                 // Right torrent
+      ];
+
+      for (const wf of waterfalls) {
+        const fx = isl3X + Math.round(wf.dx * (isMobile ? 0.6 : 1));
+        const fh = wf.fallH;
+        const fw = wf.w;
+
+        for (let f = 0; f < fh; f += 2) {
+          const isWhite = (f + flowOffset) % 6 < 2;
+          ctx.fillStyle = isWhite ? waterWhite : waterCyan;
+          ctx.fillRect(fx, ccY + 4 + f, fw, 2);
+          if (f % 12 === 0) {
+            ctx.fillRect(fx - 1, ccY + 4 + f, fw + 2, 1);
+          }
+        }
+
+        // Billowing Voxel Mist Cloud Puffs at Waterfall Base
+        ctx.fillStyle = "rgba(224, 242, 254, 0.45)";
+        ctx.fillRect(fx - 8, ccY + 4 + fh, fw + 16, 5);
+        ctx.fillRect(fx - 4, ccY + 1 + fh, fw + 8, 3);
+        ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
+        ctx.fillRect(fx - 2, ccY + 2 + fh, fw + 4, 3);
       }
     };
 
@@ -711,10 +836,8 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
       // 0. Draw Distant Floating Voxel Sky Islands with Cascading Waterfalls
       drawPixelFloatingIslands(width, height, time, isNightMode);
 
-      // 1. Draw Stepped Pixel Clouds in cloudy / overcast / fog conditions
-      if (condition === "cloudy" || condition === "partly-cloudy" || condition === "fog") {
-        drawPixelClouds(clouds, width, dt);
-      }
+      // 1. Draw Stepped Pixel Clouds in atmosphere
+      drawPixelClouds(clouds, width, dt);
 
       // 2. Draw Pixel Celestial Body (Sun / Moon)
       if (isClearDay) {

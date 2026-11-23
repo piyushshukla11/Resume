@@ -79,6 +79,13 @@ export function Portfolio() {
 
   const conditionLabel = mode !== "auto" ? modes.find((item) => item.id === mode)?.label : weather?.condition?.replaceAll("-", " ") || "Finding weather";
   const location = weather?.location || "Bengaluru";
+  const condition = weather?.condition ?? "clear";
+  const night = weather?.atmosphere === "night" || mode === "clear-night";
+  const isRain = condition === "rain" || condition === "thunderstorm" || mode === "rain";
+  const isSnow = condition === "snow" || mode === "snow";
+  const isSunny = (condition === "clear" || mode === "clear-day") && !night && !isRain && !isSnow;
+  const weatherClass = isRain ? "weather-rain" : isSunny ? "weather-sunny" : night ? "weather-night" : isSnow ? "weather-snow" : "weather-cloudy";
+
   useEffect(() => {
     if (weather) {
       const lat = String(weather.latitude);
@@ -90,7 +97,7 @@ export function Portfolio() {
     }
   }, [weather]);
 
-  return <div className={`site-shell${minimal ? " focus-mode" : ""}`}>
+  return <div className={`site-shell ${weatherClass}${minimal ? " focus-mode" : ""}`}>
     <WeatherCanvas onProjectSelect={setProjectId} />
     <header className="hud-header">
       <a className="brand-lockup" href="#top" aria-label="ME, return to top"><span className="wordmark">ME<span>.</span></span><span className="brand-caption">PIYUSH SHUKLA / PORTFOLIO</span></a>
@@ -127,7 +134,7 @@ export function Portfolio() {
     <main id="top">
       <section className="hero section-wrap" aria-labelledby="hero-title">
         <div className="hero-content">
-          <p className="eyebrow hero-eyebrow"><span className="status-light" /> BUILDING SYSTEMS THAT HOLD UP</p>
+          <p className="eyebrow hero-eyebrow"><span className="status-light" /> ❖ BUILDING SYSTEMS THAT HOLD UP ❖</p>
           <h1 id="hero-title">I make complex<br />systems feel <em>simple.</em></h1>
           <p className="hero-copy">I’m Piyush Shukla — a computer science undergrad drawn to the layers beneath the interface. I build execution systems, useful AI, and playful worlds.</p>
           <div className="hero-actions"><a className="button button-primary" href="#work">Explore the index <ArrowRight size={15} /></a><a className="button button-outline" href="https://github.com/piyushshukla11" target="_blank" rel="noreferrer"><Github size={15} /> GitHub <ArrowUpRight size={13} /></a></div>
@@ -138,7 +145,7 @@ export function Portfolio() {
       </section>
 
       <section id="work" className="section-wrap work-section section-anchor" aria-labelledby="work-title">
-        <div className="section-heading"><div><p className="eyebrow">01 / SELECTED WORK</p><h2 id="work-title">Engineering index<span>.</span></h2></div><p className="section-aside">Builds shaped by curiosity, constraints,<br />and the details underneath.</p></div>
+        <div className="section-heading"><div><p className="eyebrow">01 ❖ SELECTED WORK</p><h2 id="work-title">Engineering index<span>.</span></h2></div><p className="section-aside">Builds shaped by curiosity, constraints,<br />and the details underneath.</p></div>
         <div className="filter-bar" role="group" aria-label="Filter projects">{filters.map((item) => <button key={item.id} onClick={() => setFilter(item.id)} className={filter === item.id ? "is-selected" : ""} aria-pressed={filter === item.id}>{item.label}<span>{item.id === "all" ? projects.length : projects.filter((project) => project.category === item.id).length.toString().padStart(2, "0")}</span></button>)}</div>
         <div className="project-grid">{shownProjects.map((project, index) => <motion.button key={project.id} className="project-card" onClick={() => setProjectId(project.id)} initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.18 }} transition={{ delay: (index % 2) * 0.08, duration: 0.5 }}>
           <span className="project-card-top"><span className="project-count">{String(index + 1).padStart(2, "0")} / {project.category.toUpperCase()}</span><span className="project-open"><ArrowUpRight size={16} /></span></span>
@@ -150,13 +157,13 @@ export function Portfolio() {
       </section>
 
       <section id="stack" className="section-wrap stack-section section-anchor" aria-labelledby="stack-title">
-        <div className="section-heading"><div><p className="eyebrow">02 / TOOLING & CRAFT</p><h2 id="stack-title">A practical toolkit<span>.</span></h2></div><p className="section-aside">The tools change. The instinct to understand<br />the system stays.</p></div>
+        <div className="section-heading"><div><p className="eyebrow">02 ❖ TOOLING & CRAFT</p><h2 id="stack-title">A practical toolkit<span>.</span></h2></div><p className="section-aside">The tools change. The instinct to understand<br />the system stays.</p></div>
         <div className="stack-matrix">{stacks.map((group, groupIndex) => <article className="stack-group" key={group.label}><div className="stack-group-head"><span className="stack-number">0{groupIndex + 1}</span><h3>{group.label}</h3></div><div className="stack-items">{group.items.map((item, index) => <span key={item} className={index === 0 ? "stack-primary" : ""}>{item}</span>)}</div></article>)}</div>
         <div className="stack-footnote"><span>{mode === "clear-night" || weather?.atmosphere === "night" ? "MOON / CORE COMPETENCIES" : "SUN / CORE COMPETENCIES"}</span><span>SELECTED FROM THE CELESTIAL MATRIX</span></div>
       </section>
 
       <section id="competitive" className="section-wrap competitive-section section-anchor" aria-labelledby="competitive-title">
-        <div className="section-heading"><div><p className="eyebrow">03 / ALGORITHMIC PROOF-OF-WORK</p><h2 id="competitive-title">Think in constraints<span>.</span></h2></div><p className="section-aside">Practice that carries back into the code:<br />clear invariants, measured trade-offs.</p></div>
+        <div className="section-heading"><div><p className="eyebrow">03 ❖ ALGORITHMIC PROOF-OF-WORK</p><h2 id="competitive-title">Think in constraints<span>.</span></h2></div><p className="section-aside">Practice that carries back into the code:<br />clear invariants, measured trade-offs.</p></div>
         <div className="competitive-grid">
           <a className="profile-card" href={leetcodeUsername ? "https://leetcode.com/u/" + encodeURIComponent(leetcodeUsername) + "/" : "https://leetcode.com"} target="_blank" rel="noreferrer"><span className="profile-mark">LC</span><span className="profile-body"><span className="eyebrow">PROBLEM SOLVING</span><strong>LeetCode</strong><small>{leetcodeUsername ? "Dynamic programming · graphs · trees" : "Set NEXT_PUBLIC_LEETCODE_USERNAME to link your profile"}</small></span><ArrowUpRight size={16} /></a>
           <a className="profile-card" href={codechefUsername ? "https://www.codechef.com/users/" + encodeURIComponent(codechefUsername) : "https://www.codechef.com"} target="_blank" rel="noreferrer"><span className="profile-mark profile-mark-alt">CC</span><span className="profile-body"><span className="eyebrow">CONTEST PRACTICE</span><strong>CodeChef</strong><small>{codechefUsername ? "Complexity · data structures · optimization" : "Set NEXT_PUBLIC_CODECHEF_USERNAME to link your profile"}</small></span><ArrowUpRight size={16} /></a>
@@ -166,13 +173,13 @@ export function Portfolio() {
       </section>
 
       <section id="experience" className="section-wrap experience-section section-anchor" aria-labelledby="experience-title">
-        <div className="section-heading"><div><p className="eyebrow">04 / EDUCATION & MILESTONES</p><h2 id="experience-title">Learning by building<span>.</span></h2></div><p className="section-aside">A timeline of rooms entered, ideas tested,<br />and systems made real.</p></div>
+        <div className="section-heading"><div><p className="eyebrow">04 ❖ EDUCATION & MILESTONES</p><h2 id="experience-title">Learning by building<span>.</span></h2></div><p className="section-aside">A timeline of rooms entered, ideas tested,<br />and systems made real.</p></div>
         <div className="timeline">{milestones.map((item) => <article className="timeline-row" key={item.mark}><span className="timeline-mark">{item.mark}</span><span className="timeline-date">{item.date}</span><div className="timeline-copy"><h3>{item.title}</h3><p>{item.detail}</p></div><span className="timeline-dot" /></article>)}</div>
       </section>
 
       <section id="contact" className="section-wrap contact-section section-anchor" aria-labelledby="contact-title">
         <div className="contact-orbit" aria-hidden="true"><span /><span /><span /></div>
-        <div className="contact-content"><p className="eyebrow">05 / OPEN CHANNEL</p><h2 id="contact-title">Let’s make<br /><em>something matter.</em></h2><p>For systems engineering, game development, internships, or a curious technical conversation.</p><div className="contact-actions">{email ? <a className="button button-primary" href={`mailto:${email}`}>Start a conversation <ArrowUpRight size={15} /></a> : <a className="button button-primary" href="https://github.com/piyushshukla11" target="_blank" rel="noreferrer">Reach out on GitHub <ArrowUpRight size={15} /></a>}<a className="button button-outline" href="https://www.linkedin.com/in/piyush-shukla-dev" target="_blank" rel="noreferrer"><Linkedin size={15} /> LinkedIn</a><Link className="button button-outline" href="/contact">View Profile & Contact Page <ArrowRight size={14} /></Link></div></div>
+        <div className="contact-content"><p className="eyebrow">05 ❖ OPEN CHANNEL</p><h2 id="contact-title">Let’s make<br /><em>something matter.</em></h2><p>For systems engineering, game development, internships, or a curious technical conversation.</p><div className="contact-actions">{email ? <a className="button button-primary" href={`mailto:${email}`}>Start a conversation <ArrowUpRight size={15} /></a> : <a className="button button-primary" href="https://github.com/piyushshukla11" target="_blank" rel="noreferrer">Reach out on GitHub <ArrowUpRight size={15} /></a>}<a className="button button-outline" href="https://www.linkedin.com/in/piyush-shukla-dev" target="_blank" rel="noreferrer"><Linkedin size={15} /> LinkedIn</a><Link className="button button-outline" href="/contact">View Profile & Contact Page <ArrowRight size={14} /></Link></div></div>
       </section>
     </main>
 
