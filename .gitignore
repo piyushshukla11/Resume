@@ -1,0 +1,11 @@
+.next/
+node_modules/
+out/
+.env*
+.vercel/
+.DS_Store
+*.tsbuildinfo
+/data/pipeline.json
+AGENTS.md
+progress.md
+
