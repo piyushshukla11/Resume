@@ -2003,9 +2003,9 @@ main, .site-footer { position: relative; z-index: 3; }
   animation: umbrellaDrip 1.4s infinite steps(8, end);
 }
 
-.rain-drip-1 { left: 54%; top: 36%; animation-delay: 0.2s; }
-.rain-drip-2 { left: 81%; top: 38%; animation-delay: 0.7s; }
-.rain-drip-3 { left: 66%; top: 24%; animation-delay: 1.1s; }
+.rain-drip-1 { left: 56%; top: 32%; animation-delay: 0.2s; }
+.rain-drip-2 { left: 74%; top: 33%; animation-delay: 0.7s; }
+.rain-drip-3 { left: 65%; top: 22%; animation-delay: 1.1s; }
 
 @keyframes umbrellaDrip {
   0% {
@@ -2038,17 +2038,24 @@ main, .site-footer { position: relative; z-index: 3; }
 }
 
 .voxel-character-hotspot.pose-sitting {
-  left: 56%;
-  top: 28%;
-  width: 40%;
-  height: 52%;
+  left: 54%;
+  top: 34%;
+  width: 19%;
+  height: 35%;
 }
 
 .voxel-character-hotspot.pose-standing {
-  left: 58%;
-  top: 24%;
-  width: 38%;
-  height: 58%;
+  left: 55%;
+  top: 28%;
+  width: 18%;
+  height: 41%;
+}
+
+.voxel-character-hotspot.pose-rain {
+  left: 53%;
+  top: 20%;
+  width: 23%;
+  height: 48%;
 }
 
 .voxel-character-hotspot:hover,
@@ -2070,9 +2077,10 @@ main, .site-footer { position: relative; z-index: 3; }
 /* Animated Head-Turn Overlay (Pixel Sharp) */
 .voxel-head-turn-overlay {
   position: absolute;
-  left: 6%;
-  top: -2%;
-  width: 58%;
+  left: 50%;
+  top: -6%;
+  transform: translateX(-50%);
+  width: 84%;
   height: auto;
   pointer-events: none;
   z-index: 12;
@@ -2107,8 +2115,8 @@ main, .site-footer { position: relative; z-index: 3; }
 /* Interactive Pixel Speech Bubble (Stepped 8-Bit Box) */
 .voxel-speech-bubble {
   position: absolute;
-  bottom: calc(100% + 12px);
-  left: 45%;
+  bottom: calc(100% + 14px);
+  left: 50%;
   transform: translateX(-50%) translateY(4px);
   padding: 8px 16px;
   border-radius: 0;

@@ -81,9 +81,9 @@ export function HillCharacter() {
         {/* Interactive Character Hitbox & Trigger Button */}
         <button
           type="button"
-          className={`voxel-character-hotspot ${isSunny || isRain ? "pose-sitting" : "pose-standing"} ${
-            isLookingBack ? "is-activated" : ""
-          } ${isHovered ? "is-hovered" : ""}`}
+          className={`voxel-character-hotspot ${
+            isSunny ? "pose-sitting" : isRain ? "pose-rain" : "pose-standing"
+          } ${isLookingBack ? "is-activated" : ""} ${isHovered ? "is-hovered" : ""}`}
           onClick={handleClick}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
