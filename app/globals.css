@@ -131,33 +131,33 @@ button { color: inherit; }
 }
 .celestial-hub {
   position: absolute;
-  top: 30%;
-  left: 79%;
+  top: 26%;
+  left: 82%;
   z-index: 3;
   display: grid;
-  width: 58px;
-  height: 58px;
+  width: 96px;
+  height: 96px;
   place-items: center;
   padding: 0;
-  border: 3px solid rgba(251, 191, 36, 0.7);
+  border: none;
   border-radius: 0;
-  background: rgba(11, 22, 38, 0.75);
+  background: transparent;
   color: #fef08a;
   cursor: pointer;
   pointer-events: auto;
   transform: translate(-50%, -50%);
-  transition: background .15s ease, border-color .15s ease, transform .15s ease;
-  box-shadow: 0 0 0 2px #020617, 0 0 20px rgba(251, 191, 36, 0.4);
+  transition: transform .2s ease;
+  box-shadow: none;
+}
+.celestial-hub svg {
+  display: none;
 }
 .celestial-hub:hover, .celestial-hub:focus-visible {
-  border-color: #fde047;
-  background: rgba(15, 29, 48, 0.92);
   transform: translate(-50%, -50%) scale(1.08);
 }
 .weather-layer.is-night .celestial-hub {
-  color: #e0f2fe;
-  border-color: rgba(147, 197, 253, 0.7);
-  box-shadow: 0 0 0 2px #020617, 0 0 20px rgba(147, 197, 253, 0.4);
+  border: none;
+  box-shadow: none;
 }
 .celestial-label {
   position: absolute;
@@ -1078,7 +1078,7 @@ main, .site-footer { position: relative; z-index: 3; }
   .project-drawer { padding: 22px 21px 30px; }
   .drawer-index { margin-top: 30px; }
   .admin-drawer h2 { font-size: 32px; }
-  .celestial-hub { top: 27%; left: 79%; }
+  .celestial-hub { top: 22%; left: 78%; }
 }
 @media (max-width: 390px) {
   .environment-pill { gap: 5px; font-size: 7px; }

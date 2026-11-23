@@ -6,7 +6,6 @@ import { motion } from "motion/react";
 import { ArrowDownToLine, ArrowRight, ArrowUpRight, Cloud, Command, Github, Linkedin, LocateFixed, Menu, X } from "lucide-react";
 import { useWeather } from "@/components/weather-provider";
 import { WeatherCanvas } from "@/components/weather-canvas";
-import { HillCharacter } from "@/components/hill-character";
 import { ProjectDrawer } from "@/components/project-drawer";
 import { AdminDrawer } from "@/components/admin-drawer";
 import { CommandPalette } from "@/components/command-palette";
@@ -138,9 +137,8 @@ export function Portfolio() {
           <h1 id="hero-title">I make complex<br />systems feel <em>simple.</em></h1>
           <p className="hero-copy">I’m Piyush Shukla — a computer science undergrad drawn to the layers beneath the interface. I build execution systems, useful AI, and playful worlds.</p>
           <div className="hero-actions"><a className="button button-primary" href="#work">Explore the index <ArrowRight size={15} /></a><a className="button button-outline" href="https://github.com/piyushshukla11" target="_blank" rel="noreferrer"><Github size={15} /> GitHub <ArrowUpRight size={13} /></a></div>
-          <p className="hero-hint"><span className="hint-mark">↗</span> Weather is live. Move through the sky nodes to find the work.</p>
+          <p className="hero-hint"><span className="hint-mark">❖</span> 8-bit weather engine active. Explore the selected engineering index below.</p>
         </div>
-        <HillCharacter />
         <a className="scroll-cue" href="#work"><span /> SCROLL TO EXPLORE</a>
       </section>
 
