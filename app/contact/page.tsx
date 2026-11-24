@@ -8,7 +8,6 @@ import {
   Check,
   Code2,
   Copy,
-  ExternalLink,
   Github,
   Linkedin,
   Mail,
@@ -194,7 +193,7 @@ export default function ContactPage() {
             </div>
           </div>
 
-          {/* 4. Competitive Programming (LeetCode & CodeChef) */}
+          {/* 4. Competitive Programming (LeetCode) */}
           <div className="channel-card channel-competitive">
             <div className="channel-card-head">
               <div className="channel-icon-wrap competitive-icon">
@@ -202,31 +201,20 @@ export default function ContactPage() {
               </div>
               <span className="channel-tag">ALGORITHMS & SPEED</span>
             </div>
-            <strong className="channel-title">Competitive Profiles</strong>
-            <p className="channel-handle">LeetCode & CodeChef (@piyushshukla11)</p>
+            <strong className="channel-title">Competitive Profile</strong>
+            <p className="channel-handle">LeetCode (@piyushshukla11)</p>
             <p className="channel-copy">
-              Data structures, dynamic programming, graph theory, and algorithmic speed benchmarks.
+              Data structures, dynamic programming, graph theory, and algorithmic problem-solving benchmarks.
             </p>
-            <div className="channel-dual-actions">
-              <a
-                href="https://leetcode.com/u/piyushshukla11/"
-                target="_blank"
-                rel="noreferrer"
-                className="channel-action-btn secondary-btn"
-              >
-                <span>LeetCode</span>
-                <ExternalLink size={13} />
-              </a>
-              <a
-                href="https://www.codechef.com/users/piyushshukla11"
-                target="_blank"
-                rel="noreferrer"
-                className="channel-action-btn secondary-btn"
-              >
-                <span>CodeChef</span>
-                <ExternalLink size={13} />
-              </a>
-            </div>
+            <a
+              href="https://leetcode.com/u/piyushshukla11/"
+              target="_blank"
+              rel="noreferrer"
+              className="channel-cta-button"
+            >
+              <span>Open LeetCode Profile</span>
+              <ArrowUpRight size={15} />
+            </a>
           </div>
         </section>
 

@@ -42,8 +42,7 @@ export function Portfolio() {
   const [curated, setCurated] = useState<PortfolioProject[]>([]);
   const [mobileMenu, setMobileMenu] = useState(false);
   const email = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "piyushsukla775314@gmail.com";
-  const leetcodeUsername = process.env.NEXT_PUBLIC_LEETCODE_USERNAME;
-  const codechefUsername = process.env.NEXT_PUBLIC_CODECHEF_USERNAME;
+  const leetcodeUsername = process.env.NEXT_PUBLIC_LEETCODE_USERNAME || "piyushshukla11";
   const projects = useMemo(() => [...featuredProjects, ...curated], [curated]);
   const highlightProjects = useMemo(() => {
     const highlightIds = ["voyage", "ulpin-cadastre"];
@@ -264,8 +263,15 @@ export function Portfolio() {
       <section id="competitive" className="section-wrap competitive-section section-anchor" aria-labelledby="competitive-title">
         <div className="section-heading"><div><p className="eyebrow">03 ❖ ALGORITHMIC PROOF-OF-WORK</p><h2 id="competitive-title">Think in constraints<span>.</span></h2></div><p className="section-aside">Practice that carries back into the code:<br />clear invariants, measured trade-offs.</p></div>
         <div className="competitive-grid">
-          <a className="profile-card" href={leetcodeUsername ? "https://leetcode.com/u/" + encodeURIComponent(leetcodeUsername) + "/" : "https://leetcode.com"} target="_blank" rel="noreferrer"><span className="profile-mark">LC</span><span className="profile-body"><span className="eyebrow">PROBLEM SOLVING</span><strong>LeetCode</strong><small>{leetcodeUsername ? "Dynamic programming · graphs · trees" : "Set NEXT_PUBLIC_LEETCODE_USERNAME to link your profile"}</small></span><ArrowUpRight size={16} /></a>
-          <a className="profile-card" href={codechefUsername ? "https://www.codechef.com/users/" + encodeURIComponent(codechefUsername) : "https://www.codechef.com"} target="_blank" rel="noreferrer"><span className="profile-mark profile-mark-alt">CC</span><span className="profile-body"><span className="eyebrow">CONTEST PRACTICE</span><strong>CodeChef</strong><small>{codechefUsername ? "Complexity · data structures · optimization" : "Set NEXT_PUBLIC_CODECHEF_USERNAME to link your profile"}</small></span><ArrowUpRight size={16} /></a>
+          <a className="profile-card" href={`https://leetcode.com/u/${encodeURIComponent(leetcodeUsername)}/`} target="_blank" rel="noreferrer">
+            <span className="profile-mark">LC</span>
+            <span className="profile-body">
+              <span className="eyebrow">PROBLEM SOLVING</span>
+              <strong>LeetCode</strong>
+              <small>Dynamic programming · graphs · trees & algorithms</small>
+            </span>
+            <ArrowUpRight size={16} />
+          </a>
           <div className="principle-card"><span className="eyebrow">WORKING PRINCIPLE</span><p>“Make the invariant visible. Let the code explain the rest.”</p><span className="principle-signature">P / ENGINEERING NOTES</span></div>
         </div>
       </section>

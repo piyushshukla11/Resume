@@ -1245,7 +1245,7 @@ main textarea,
 }
 .stack-footnote { display: flex; justify-content: space-between; margin-top: 18px; color: #94a3b8; font: 9px var(--font-pixel-heading); letter-spacing: .08em; }
 
-.competitive-grid { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 14px; }
+.competitive-grid { display: grid; grid-template-columns: 1fr 1.25fr; gap: 14px; }
 .profile-card, .principle-card {
   display: flex;
   min-height: 130px;
@@ -1519,8 +1519,8 @@ main textarea,
   .focus-toggle { display: none; }
   .environment-pill { left: 24px; }
   .hero-instrument { right: 0; width: 240px; }
-  .competitive-grid { grid-template-columns: 1fr 1fr; }
-  .principle-card { grid-column: span 2; min-height: 110px; }
+  .competitive-grid { grid-template-columns: 1fr; }
+  .principle-card { grid-column: auto; min-height: 110px; }
 }
 @media (max-width: 720px) {
   .hud-header { top: 12px; width: calc(100% - 24px); min-height: 54px; gap: 8px; padding: 0 11px; }
