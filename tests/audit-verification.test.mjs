@@ -337,7 +337,9 @@ test("pixel-intro: component and layout integration", async () => {
   const cssSrc = fs.readFileSync("app/globals.css", "utf8");
 
   assert.ok(layoutSrc.includes("<PixelIntro />"), "PixelIntro must be included in RootLayout");
-  assert.ok(introSrc.includes("BITMAP_M") && introSrc.includes("BITMAP_E") && introSrc.includes("BITMAP_DOT"), "Must define pixel glyph bitmaps");
+  assert.ok(introSrc.includes("MATRIX_M") && introSrc.includes("MATRIX_E"), "Must define pixel glyph matrices");
+  assert.ok(introSrc.includes("#ef4444"), "Middle of M must be colored red");
+  assert.ok(introSrc.includes("#ffffff"), "Scene background must be white");
   assert.ok(introSrc.includes("clearRect"), "Must use clearRect for block-by-block pixel dissolve");
   assert.ok(cssSrc.includes(".pixel-intro-overlay"), "globals.css must define .pixel-intro-overlay");
 });
