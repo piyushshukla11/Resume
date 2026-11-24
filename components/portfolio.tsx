@@ -114,7 +114,7 @@ export function Portfolio() {
           <div className="index-gateway-header">
             <div className="gateway-badge">
               <span className="status-light" />
-              <span>DEDICATED ARCHIVE · 09 PRODUCTION SYSTEMS</span>
+              <span>DEDICATED ARCHIVE · 10 PRODUCTION SYSTEMS</span>
             </div>
             <Link href="/work" className="button button-primary">
               <span>Open Dedicated Index</span>
@@ -127,7 +127,7 @@ export function Portfolio() {
               <span className="domain-index">01</span>
               <h4>Systems & Low-Level</h4>
               <p>Linux kernel namespaces, seccomp BPF isolation, and custom runtime execution engines.</p>
-              <span className="domain-count">05 SYSTEMS</span>
+              <span className="domain-count">06 SYSTEMS</span>
             </div>
             <div className="gateway-domain-item">
               <span className="domain-index">02</span>
@@ -148,7 +148,7 @@ export function Portfolio() {
             <div className="gateway-preview-title">
               <span>FEATURED HIGHLIGHTS</span>
               <Link href="/work" className="gateway-view-all">
-                <span>View all 9 systems in index</span>
+                <span>View all 10 systems in index</span>
                 <ArrowRight size={13} />
               </Link>
             </div>
@@ -183,10 +183,10 @@ export function Portfolio() {
           <div className="index-launchpad-row">
             <div className="launchpad-text">
               <strong>Complete Architecture Archive</strong>
-              <p>Browse all 9 projects with interactive category filters, real-time keyword search, and deep case studies.</p>
+              <p>Browse all 10 projects with interactive category filters, real-time keyword search, and deep case studies.</p>
             </div>
             <Link href="/work" className="index-launchpad-btn">
-              <span>OPEN FULL ENGINEERING INDEX (09)</span>
+              <span>OPEN FULL ENGINEERING INDEX (10)</span>
               <ArrowRight size={16} />
             </Link>
           </div>

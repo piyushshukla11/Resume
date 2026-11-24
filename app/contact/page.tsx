@@ -148,7 +148,7 @@ export default function ContactPage() {
             <strong className="channel-title">GitHub</strong>
             <p className="channel-handle">github.com/piyushshukla11</p>
             <p className="channel-copy">
-              Explore 9+ authentic personal & team repositories, systems architectures, compiler pipelines, and commit histories.
+              Explore 10+ authentic personal & team repositories, systems architectures, compiler pipelines, and commit histories.
             </p>
             <a
               href="https://github.com/piyushshukla11"

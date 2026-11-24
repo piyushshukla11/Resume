@@ -162,10 +162,10 @@ test("project-store: state transitions maintain invariants across approved, pend
   assert.equal(s4.ignored.length, 0);
 });
 
-test("projects: all 9 archived systems have unique IDs, categories, and case study metadata", async () => {
+test("projects: all 10 archived systems have unique IDs, categories, and case study metadata", async () => {
   const { featuredProjects, getProject } = await import("../lib/projects.ts");
 
-  assert.equal(featuredProjects.length, 9, "Expected 9 archived engineering projects");
+  assert.equal(featuredProjects.length, 10, "Expected 10 archived engineering projects");
 
   const ids = new Set();
   const validCategories = new Set(["systems", "ai", "games"]);

@@ -73,6 +73,61 @@ int enter_sandbox_containment(const sandbox_config_t *cfg) {
     featured: true,
   },
   {
+    id: "polyexecution-studio",
+    title: "PolyExecution Studio (PES 1)",
+    subtitle: "Collaborative browser code studio & low-latency C sandbox runner",
+    category: "systems",
+    tags: ["C", "Linux namespaces", "cgroups v2", "Kotlin", "gRPC", "Java 21"],
+    summary: "A collaborative multi-language execution platform featuring a C sandbox runner with pivot_root and seccomp-bpf isolation, backed by an asynchronous Kotlin gRPC worker using Java 21 virtual threads.",
+    problemStatement: "Building collaborative coding platforms requires immediate runtime feedback without exposing the host OS to malicious code, arbitrary execution escapes, fork bombs, or high daemon latency from heavyweight Docker engines.",
+    technicalDeepDive: [
+      "Low-level C sandbox runner implementing process lifecycle controls (fork, execve, wait4), RLIMIT resource enforcement, non-blocking pipe draining via poll(), and fail-closed isolation.",
+      "Linux security hardening using cgroups v2 (pids.max, memory, cpu.weight), Linux namespaces (User, Mount, PID, Network), pivot_root with private tmpfs rootfs, capability dropping, and seccomp-bpf allowlists.",
+      "Kotlin gRPC execution worker implementing an additive progress streaming contract emitting truthful lifecycle events (STAGE_COMPILING, STAGE_RUNNING) over HTTP/2.",
+      "High-concurrency I/O utilizing dedicated Java 21 virtual threads for asynchronous process pipe draining, preventing thread pool exhaustion under heavy concurrent user runs.",
+    ],
+    challengesSolved: [
+      "Eliminated container daemon overhead, achieving sub-15ms sandbox process startup.",
+      "Engineered fail-closed isolation guarantees that terminate instantly with structured errors if any namespace or cgroup prerequisite fails.",
+      "Guaranteed ephemeral workspace lifecycle integrity with recursive cleanup and strict symlink traversal defense.",
+    ],
+    metrics: [
+      { label: "Sandbox Startup", value: "<15ms" },
+      { label: "Concurrency", value: "Java 21 Virtual Threads" },
+      { label: "Host Protection", value: "Namespaces + Cgroups v2" },
+      { label: "Worker IPC", value: "gRPC Streaming" },
+    ],
+    codeHighlight: {
+      language: "c",
+      filename: "sandbox-runner/src/main.c",
+      snippet: `// Fail-closed C sandbox runner with unshare and pivot_root containment
+int setup_isolation_jail(const char *new_root) {
+    if (unshare(CLONE_NEWNS | CLONE_NEWPID | CLONE_NEWNET | CLONE_NEWIPC) != 0) {
+        return -1;
+    }
+    if (mount("none", "/", NULL, MS_REC | MS_PRIVATE, NULL) != 0) {
+        return -2;
+    }
+    if (pivot_root(new_root, new_root) != 0) {
+        return -3;
+    }
+    return drop_capabilities_and_apply_seccomp();
+}`,
+    },
+    architecture: [
+      "C Sandbox Daemon: Strict namespace, tmpfs rootfs, and seccomp-bpf execution jail.",
+      "Kotlin Coroutine Service: gRPC streaming worker handling ephemeral workspace compilation and test runs.",
+      "Virtual Thread Pipeline: Java 21 async pipe drainers ensuring zero thread starvation under heavy concurrency.",
+      "Collaborative Web Studio: Real-time code editing and execution telemetry.",
+    ],
+    outcomes: [
+      "High-performance isolated execution pipeline capable of running concurrent untrusted C, Python, and Java programs.",
+      "Architectural foundation that paved the way for PES 2's expansion to 27 LeetCode runtime environments.",
+    ],
+    githubUrl: "https://github.com/piyushshukla11/polyexecution-studio",
+    featured: true,
+  },
+  {
     id: "voyage",
     title: "Voyage — Lunar Optical Correspondence",
     subtitle: "Chandrayaan-2 planetary correspondence & crater detection system",
@@ -459,7 +514,7 @@ export function computeUnifiedRating(cfRating: number, ccRating: number): number
 ];
 
 export function getProject(id: string): PortfolioProject | undefined {
-  return featuredProjects.find((p) => p.id === id || (id === "polyexecution-studio" && p.id === "polyexecution-studio2"));
+  return featuredProjects.find((p) => p.id === id);
 }
 
 export function getAllProjects(): PortfolioProject[] {

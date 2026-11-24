@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { ArrowDownToLine, ArrowUpRight, AtSign, Check, Command, Search } from "lucide-react";
 
 const commands = [
-  { label: "Open Engineering Index", hint: "Dedicated page with all 9 systems", type: "route", value: "/work" },
+  { label: "Open Engineering Index", hint: "Dedicated page with all 10 systems", type: "route", value: "/work" },
   { label: "Jump to Work", hint: "Projects and engineering index preview", type: "section", value: "work" },
   { label: "Jump to Stack", hint: "Languages and tools", type: "section", value: "stack" },
   { label: "Jump to Experience", hint: "Education and milestones", type: "section", value: "experience" },
