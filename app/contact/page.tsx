@@ -24,7 +24,7 @@ export default function ContactPage() {
   const [senderEmail, setSenderEmail] = useState("");
   const [senderMessage, setSenderMessage] = useState("");
 
-  const email = "piyush.shukla.dev@gmail.com";
+  const email = "piyushshukla775314@gmail.com";
 
   const handleCopyEmail = async () => {
     try {
@@ -40,12 +40,23 @@ export default function ContactPage() {
     e.preventDefault();
     if (!senderMessage.trim()) return;
 
-    // Trigger mailto with prefilled details
+    // Trigger Gmail web compose with prefilled details in a new tab
     const subject = encodeURIComponent(`Portfolio Connection from ${senderName || "Visitor"}`);
     const body = encodeURIComponent(
       `Hi Piyush,\n\n${senderMessage}\n\nFrom: ${senderName} (${senderEmail})`
     );
-    window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}&su=${subject}&body=${body}`;
+    window.open(gmailUrl, "_blank", "noopener,noreferrer");
+
+    // Also attempt mailto in case user has a desktop mail client configured
+    try {
+      const a = document.createElement("a");
+      a.href = `mailto:${email}?subject=${subject}&body=${body}`;
+      a.click();
+    } catch {
+      // Fallback
+    }
+
     setFormSent(true);
   };
 
@@ -184,11 +195,19 @@ export default function ContactPage() {
                 <span>{copied ? "Copied!" : "Copy Address"}</span>
               </button>
               <a
-                href={`mailto:${email}`}
+                href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}`}
+                target="_blank"
+                rel="noreferrer"
                 className="channel-action-btn primary-btn"
+                title="Open Gmail to compose email"
               >
                 <span>Compose Mail</span>
                 <ArrowUpRight size={14} />
+              </a>
+            </div>
+            <div className="channel-extra-link-row">
+              <a href={`mailto:${email}`} className="channel-mailto-fallback">
+                Prefer desktop app? Click for mailto ↗
               </a>
             </div>
           </div>
@@ -202,12 +221,12 @@ export default function ContactPage() {
               <span className="channel-tag">ALGORITHMS & SPEED</span>
             </div>
             <strong className="channel-title">Competitive Profile</strong>
-            <p className="channel-handle">LeetCode (@piyushshukla11)</p>
+            <p className="channel-handle">LeetCode (@zogratis_775314)</p>
             <p className="channel-copy">
               Data structures, dynamic programming, graph theory, and algorithmic problem-solving benchmarks.
             </p>
             <a
-              href="https://leetcode.com/u/piyushshukla11/"
+              href="https://leetcode.com/u/zogratis_775314/"
               target="_blank"
               rel="noreferrer"
               className="channel-cta-button"

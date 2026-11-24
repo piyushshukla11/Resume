@@ -13,10 +13,13 @@ const commands = [
   { label: "Jump to Competitive", hint: "Problem solving profiles", type: "section", value: "competitive" },
   { label: "Jump to Contact", hint: "Get in touch", type: "route", value: "/contact" },
   { label: "Open GitHub", hint: "@piyushshukla11", type: "link", value: "https://github.com/piyushshukla11" },
+  { label: "Open LeetCode", hint: "@zogratis_775314", type: "link", value: "https://leetcode.com/u/zogratis_775314/" },
   { label: "Open LinkedIn", hint: "piyush-shukla-dev", type: "link", value: "https://www.linkedin.com/in/piyush-shukla-dev" },
+  { label: "Compose email", hint: "Open in Gmail composer", type: "compose", value: "compose" },
   { label: "Copy email address", hint: "Copy to clipboard", type: "email", value: "email" },
   { label: "Export resume as PDF", hint: "Print-ready, ATS-friendly layout", type: "print", value: "print" },
   { label: "Toggle focus mode", hint: "Quiet the weather canvas", type: "focus", value: "focus" },
+  { label: "Replay intro animation", hint: "ME pixel pop-up & block dissolve", type: "intro", value: "intro" },
 ];
 
 export function CommandPalette({ open, onClose, email, onToggleFocus }: { open: boolean; onClose: () => void; email: string; onToggleFocus: () => void }) {
@@ -40,6 +43,9 @@ export function CommandPalette({ open, onClose, email, onToggleFocus }: { open: 
     if (command.type === "route") router.push(command.value);
     if (command.type === "section") document.getElementById(command.value)?.scrollIntoView({ behavior: "smooth" });
     if (command.type === "link") window.open(command.value, "_blank", "noopener,noreferrer");
+    if (command.type === "compose" && email) {
+      window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}`, "_blank", "noopener,noreferrer");
+    }
     if (command.type === "email" && email) {
       await navigator.clipboard.writeText(email);
       setCopied(true);
@@ -47,6 +53,7 @@ export function CommandPalette({ open, onClose, email, onToggleFocus }: { open: 
     }
     if (command.type === "print") window.print();
     if (command.type === "focus") onToggleFocus();
+    if (command.type === "intro") window.dispatchEvent(new CustomEvent("me:replay-intro"));
     if (command.type !== "email") onClose();
   }
 

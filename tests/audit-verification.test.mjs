@@ -318,3 +318,39 @@ test("stack: highlights all core technologies with green primary box except unit
     }
   }
 });
+
+test("leetcode: profile handle links to zogratis_775314", async () => {
+  const fs = await import("node:fs");
+  const portfolioSrc = fs.readFileSync("components/portfolio.tsx", "utf8");
+  const contactSrc = fs.readFileSync("app/contact/page.tsx", "utf8");
+  const paletteSrc = fs.readFileSync("components/command-palette.tsx", "utf8");
+
+  assert.ok(portfolioSrc.includes("zogratis_775314"), "Portfolio must fallback to zogratis_775314");
+  assert.ok(contactSrc.includes("https://leetcode.com/u/zogratis_775314/"), "Contact page must link to zogratis_775314");
+  assert.ok(paletteSrc.includes("https://leetcode.com/u/zogratis_775314/"), "Command palette must link to zogratis_775314");
+});
+
+test("pixel-intro: component and layout integration", async () => {
+  const fs = await import("node:fs");
+  const layoutSrc = fs.readFileSync("app/layout.tsx", "utf8");
+  const introSrc = fs.readFileSync("components/pixel-intro.tsx", "utf8");
+  const cssSrc = fs.readFileSync("app/globals.css", "utf8");
+
+  assert.ok(layoutSrc.includes("<PixelIntro />"), "PixelIntro must be included in RootLayout");
+  assert.ok(introSrc.includes("MATRIX_M") && introSrc.includes("MATRIX_E"), "Must define pixel glyph matrices");
+  assert.ok(introSrc.includes("#ef4444"), "Middle of M must be colored red");
+  assert.ok(introSrc.includes("#ffffff"), "Scene background must be white");
+  assert.ok(introSrc.includes("clearRect"), "Must use clearRect for block-by-block pixel dissolve");
+  assert.ok(cssSrc.includes(".pixel-intro-overlay"), "globals.css must define .pixel-intro-overlay");
+});
+
+test("email: contact address is piyushshukla775314@gmail.com with live compose action", async () => {
+  const fs = await import("node:fs");
+  const portfolioSrc = fs.readFileSync("components/portfolio.tsx", "utf8");
+  const contactSrc = fs.readFileSync("app/contact/page.tsx", "utf8");
+
+  assert.ok(portfolioSrc.includes("piyushshukla775314@gmail.com"), "Portfolio must fallback to piyushshukla775314@gmail.com");
+  assert.ok(contactSrc.includes("piyushshukla775314@gmail.com"), "Contact page must use piyushshukla775314@gmail.com");
+  assert.ok(contactSrc.includes("mail.google.com/mail/?view=cm"), "Contact page must link to web compose");
+  assert.ok(portfolioSrc.includes("mail.google.com/mail/?view=cm"), "Portfolio start conversation must link to web compose");
+});

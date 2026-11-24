@@ -3138,6 +3138,24 @@ main textarea,
   box-shadow: 0 3px 0 #031e36;
 }
 
+.channel-extra-link-row {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.channel-mailto-fallback {
+  color: #64748b;
+  font: 8px var(--font-pixel-heading);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: color 0.15s ease;
+}
+
+.channel-mailto-fallback:hover {
+  color: #94a3b8;
+  text-decoration: underline;
+}
+
 /* Direct Message Composer */
 .contact-message-section {
   padding: 36px 40px;
@@ -3272,4 +3290,46 @@ main textarea,
 
 .contact-page-footer .footer-links a:hover {
   color: #38bdf8;
+}
+
+/* ==========================================================================
+   Pixel Intro & White Scene Dissolve Overlay
+   ========================================================================== */
+.pixel-intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  pointer-events: auto;
+  overflow: hidden;
+  user-select: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.pixel-intro-canvas {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.pixel-intro-skip-hint {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #64748b;
+  font: 9px var(--font-pixel-heading);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  pointer-events: none;
+  opacity: 0.75;
+  text-shadow: 1px 1px 0 #000;
+  transition: opacity 0.2s ease;
+}
+
+.pixel-intro-overlay:hover .pixel-intro-skip-hint {
+  opacity: 1;
+  color: #94a3b8;
 }
