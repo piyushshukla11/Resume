@@ -270,3 +270,20 @@ test("weather-clouds: procedurally generates randomized Minecraft clouds with vo
   // In 8 random rolls from 7 shapes, there should almost certainly be multiple distinct shapes
   assert.ok(shapesUsed.size > 1, "Field should display varied Minecraft cloud shapes");
 });
+
+test("stack: highlights all core technologies with green primary box except unity, c++, blender, sql", () => {
+  const excluded = new Set(["unity", "c++", "blender", "sql"]);
+  const isStackPrimary = (item) => !excluded.has(item.toLowerCase());
+
+  // Excluded skills must NOT be primary
+  assert.equal(isStackPrimary("Unity"), false);
+  assert.equal(isStackPrimary("C++"), false);
+  assert.equal(isStackPrimary("Blender"), false);
+  assert.equal(isStackPrimary("SQL"), false);
+
+  // All other core stack items MUST be primary (green highlight)
+  const highlighted = ["C", "Python", "Java", "Kotlin", "Android dev", "C#", "JavaScript", "React", "Node.js", "Gemini API", "CesiumJS"];
+  for (const skill of highlighted) {
+    assert.equal(isStackPrimary(skill), true, `Expected ${skill} to be highlighted with green box`);
+  }
+});

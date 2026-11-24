@@ -23,6 +23,8 @@ const stacks = [
   { label: "GAME DEV & 3D", items: ["C#", "Unity", "Blender"] },
   { label: "WEB, DATA & AI", items: ["JavaScript", "React", "Node.js", "SQL", "Gemini API", "CesiumJS"] },
 ];
+const isStackPrimary = (item: string) =>
+  !["unity", "c++", "blender", "sql"].includes(item.toLowerCase());
 const milestones = [
   { date: "2025 — PRESENT", title: "Robotics & Artificial Intelligence", detail: "Undergraduate studies · Bengaluru", mark: "01" },
   { date: "HACK MALENADU ’26", title: "PRISM · Top 12 finalist", detail: "AI-powered customer review intelligence", mark: "02" },
@@ -191,7 +193,7 @@ export function Portfolio() {
 
       <section id="stack" className="section-wrap stack-section section-anchor" aria-labelledby="stack-title">
         <div className="section-heading"><div><p className="eyebrow">02 ❖ TOOLING & CRAFT</p><h2 id="stack-title">A practical toolkit<span>.</span></h2></div><p className="section-aside">The tools change. The instinct to understand<br />the system stays.</p></div>
-        <div className="stack-matrix">{stacks.map((group, groupIndex) => <article className="stack-group" key={group.label}><div className="stack-group-head"><span className="stack-number">0{groupIndex + 1}</span><h3>{group.label}</h3></div><div className="stack-items">{group.items.map((item, index) => <span key={item} className={index === 0 ? "stack-primary" : ""}>{item}</span>)}</div></article>)}</div>
+        <div className="stack-matrix">{stacks.map((group, groupIndex) => <article className="stack-group" key={group.label}><div className="stack-group-head"><span className="stack-number">0{groupIndex + 1}</span><h3>{group.label}</h3></div><div className="stack-items">{group.items.map((item) => <span key={item} className={isStackPrimary(item) ? "stack-primary" : ""}>{item}</span>)}</div></article>)}</div>
       </section>
 
       <section id="competitive" className="section-wrap competitive-section section-anchor" aria-labelledby="competitive-title">
