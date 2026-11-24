@@ -23,7 +23,49 @@ export function WeatherProvider({ children }: { children: ReactNode }) {
       const query = coordinates ? "?lat=" + coordinates.latitude + "&lon=" + coordinates.longitude + (label ? "&label=" + encodeURIComponent(label) : "") : "";
       const response = await fetch(`/api/weather${query}`, { cache: "no-store" });
       if (!response.ok) throw new Error("Weather data is unavailable");
-      setWeather(await response.json());
+      const data = await response.json();
+
+      // If server returned fallback data (e.g. server had network/DNS restriction), fetch client-side directly from Open-Meteo
+      if (data.source === "fallback" && coordinates && typeof window !== "undefined") {
+        try {
+          const directUrl = `https://api.open-meteo.com/v1/forecast?latitude=${coordinates.latitude}&longitude=${coordinates.longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,cloud_cover,wind_speed_10m,wind_direction_10m,visibility&daily=sunrise,sunset&timezone=auto&forecast_days=1`;
+          const directRes = await fetch(directUrl);
+          if (directRes.ok) {
+            const directData = await directRes.json();
+            const cur = directData.current;
+            const code = cur.weather_code;
+            const isRain = [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82].includes(code) || cur.precipitation > 0;
+            const isSnow = [71, 73, 75, 77, 85, 86].includes(code);
+            const isThunder = [95, 96, 99].includes(code);
+            const isFog = code === 45 || code === 48;
+            const isCloudy = code === 2 || code === 3;
+            const isPartly = code === 1;
+            const condition = isThunder ? "thunderstorm" : isSnow ? "snow" : isRain ? "rain" : isFog ? "fog" : isCloudy ? "cloudy" : isPartly ? "partly-cloudy" : "clear";
+
+            setWeather({
+              ...data,
+              temperature: cur.temperature_2m,
+              feelsLike: cur.apparent_temperature,
+              humidity: cur.relative_humidity_2m,
+              cloudCover: cur.cloud_cover,
+              precipitation: cur.precipitation,
+              windSpeed: cur.wind_speed_10m,
+              windDirection: cur.wind_direction_10m,
+              visibility: cur.visibility,
+              weatherCode: code,
+              condition,
+              isDay: Boolean(cur.is_day),
+              source: "open-meteo",
+            });
+            setError(null);
+            return;
+          }
+        } catch {
+          // Keep data
+        }
+      }
+
+      setWeather(data);
       setError(null);
     } catch {
       setError("Live weather is unavailable. The preview modes still work.");
@@ -58,7 +100,7 @@ export function WeatherProvider({ children }: { children: ReactNode }) {
           }
           void load();
         },
-        { enableHighAccuracy: true, timeout: 6000, maximumAge: 60_000 }
+        { enableHighAccuracy: true, timeout: 6000, maximumAge: 0 }
       );
     } else {
       void load();
@@ -80,17 +122,8 @@ export function WeatherProvider({ children }: { children: ReactNode }) {
         setModeState(savedMode);
       }
       setMinimalState(savedMinimal);
-      try {
-        const savedLocation = localStorage.getItem(LOCATION_KEY);
-        const coordinates = savedLocation ? JSON.parse(savedLocation) as { latitude: number; longitude: number } : null;
-        if (coordinates && Number.isFinite(coordinates.latitude) && Number.isFinite(coordinates.longitude)) {
-          void load(coordinates, "Manual location");
-        } else {
-          refreshLocation();
-        }
-      } catch {
-        refreshLocation();
-      }
+      // Clean up any stale/orphaned manual override so live weather always matches actual GPS location
+      refreshLocation();
     });
   }, [load, refreshLocation]);
 

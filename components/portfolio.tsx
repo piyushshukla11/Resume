@@ -35,7 +35,7 @@ const milestones = [
 
 export function Portfolio() {
   const router = useRouter();
-  const { weather, mode, setMode, minimal, setMinimal, error } = useWeather();
+  const { weather, mode, setMode, minimal, setMinimal, refreshLocation, error } = useWeather();
   const [projectId, setProjectId] = useState<string | null>(null);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [adminOpen, setAdminOpen] = useState(false);
@@ -86,7 +86,37 @@ export function Portfolio() {
         <Link href="/contact" onClick={() => setMobileMenu(false)}>Contact</Link>
       </nav>
       <div className="hud-actions">
-        <div className="weather-control"><label htmlFor="weather-mode" className="sr-only">Weather simulator</label><select id="weather-mode" value={mode} onChange={(event) => setMode(event.target.value as WeatherMode)} aria-label="Weather simulator">{modes.map((item) => <option value={item.id} key={item.id}>{item.label}</option>)}</select><Cloud size={14} /></div>
+        {mode === "auto" && weather && (
+          <button
+            type="button"
+            className="weather-gps-indicator"
+            title={`${weather.location} · ${Math.round(weather.temperature)}°C (${weather.condition}). Click to re-sync device GPS.`}
+            onClick={() => refreshLocation()}
+            aria-label="Re-sync device GPS location"
+          >
+            <span className="status-light" />
+            <span className="weather-location-name">{weather.location.split(",")[0]}</span>
+            <span className="weather-temp-badge">{Math.round(weather.temperature)}°C</span>
+          </button>
+        )}
+        <div className="weather-control">
+          <label htmlFor="weather-mode" className="sr-only">Weather simulator</label>
+          <select
+            id="weather-mode"
+            value={mode}
+            onChange={(event) => {
+              const nextMode = event.target.value as WeatherMode;
+              setMode(nextMode);
+              if (nextMode === "auto") {
+                refreshLocation();
+              }
+            }}
+            aria-label="Weather simulator"
+          >
+            {modes.map((item) => <option value={item.id} key={item.id}>{item.label}</option>)}
+          </select>
+          <Cloud size={14} />
+        </div>
         <button className={`focus-toggle${minimal ? " is-active" : ""}`} onClick={() => setMinimal(!minimal)} aria-pressed={minimal}>{minimal ? "Focus on" : "Focus mode"}</button>
         <button className="export-button" onClick={() => window.print()}><ArrowDownToLine size={14} /><span>Resume PDF</span></button>
       </div>
