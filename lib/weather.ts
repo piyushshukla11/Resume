@@ -74,7 +74,7 @@ export async function getWeather(latitude: number, longitude: number): Promise<W
     timezone: "auto",
     forecast_days: "1",
   }).toString();
-  const response = await fetch(url, { next: { revalidate: 600 } });
+  const response = await fetch(url, { cache: "no-store" });
   if (!response.ok) throw new Error(`Open-Meteo returned ${response.status}`);
   const data = await response.json();
   const current = data.current;

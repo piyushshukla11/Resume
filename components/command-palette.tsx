@@ -1,24 +1,26 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowDownToLine, ArrowUpRight, AtSign, Check, Command, Search } from "lucide-react";
 
 const commands = [
-  { label: "Jump to Work", hint: "Projects and engineering index", type: "section", value: "work" },
+  { label: "Open Engineering Index", hint: "Dedicated page with all 10 systems", type: "route", value: "/work" },
+  { label: "Jump to Work", hint: "Projects and engineering index preview", type: "section", value: "work" },
   { label: "Jump to Stack", hint: "Languages and tools", type: "section", value: "stack" },
   { label: "Jump to Experience", hint: "Education and milestones", type: "section", value: "experience" },
   { label: "Jump to Competitive", hint: "Problem solving profiles", type: "section", value: "competitive" },
-  { label: "Jump to Contact", hint: "Get in touch", type: "section", value: "contact" },
-  { label: "Open GitHub", hint: "@Piyush-K-Shukla", type: "link", value: "https://github.com/Piyush-K-Shukla" },
+  { label: "Jump to Contact", hint: "Get in touch", type: "route", value: "/contact" },
+  { label: "Open GitHub", hint: "@piyushshukla11", type: "link", value: "https://github.com/piyushshukla11" },
   { label: "Open LinkedIn", hint: "piyush-shukla-dev", type: "link", value: "https://www.linkedin.com/in/piyush-shukla-dev" },
-  { label: "Open X", hint: "@Piyush_K_Shukla", type: "link", value: "https://x.com/Piyush_K_Shukla" },
   { label: "Copy email address", hint: "Copy to clipboard", type: "email", value: "email" },
   { label: "Export resume as PDF", hint: "Print-ready, ATS-friendly layout", type: "print", value: "print" },
   { label: "Toggle focus mode", hint: "Quiet the weather canvas", type: "focus", value: "focus" },
 ];
 
 export function CommandPalette({ open, onClose, email, onToggleFocus }: { open: boolean; onClose: () => void; email: string; onToggleFocus: () => void }) {
+  const router = useRouter();
   const [query, setQuery] = useState("");
   const [copied, setCopied] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -35,6 +37,7 @@ export function CommandPalette({ open, onClose, email, onToggleFocus }: { open: 
   }, [open]);
 
   async function run(command: typeof commands[number]) {
+    if (command.type === "route") router.push(command.value);
     if (command.type === "section") document.getElementById(command.value)?.scrollIntoView({ behavior: "smooth" });
     if (command.type === "link") window.open(command.value, "_blank", "noopener,noreferrer");
     if (command.type === "email" && email) {

@@ -1,62 +1,56 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { motion } from "motion/react";
-import { ArrowDownToLine, ArrowRight, ArrowUpRight, Cloud, Command, Github, Linkedin, LocateFixed, Menu, X } from "lucide-react";
+import { ArrowDownToLine, ArrowRight, ArrowUpRight, Cloud, Command, Github, Linkedin, Menu, X } from "lucide-react";
 import { useWeather } from "@/components/weather-provider";
+import { resolveWeatherState } from "@/lib/weather-state";
 import { WeatherCanvas } from "@/components/weather-canvas";
 import { ProjectDrawer } from "@/components/project-drawer";
 import { AdminDrawer } from "@/components/admin-drawer";
 import { CommandPalette } from "@/components/command-palette";
 import { featuredProjects } from "@/lib/projects";
-import type { PortfolioProject, ProjectCategory } from "@/lib/projects";
+import type { PortfolioProject } from "@/lib/projects";
 import type { WeatherMode } from "@/lib/weather";
 
 const modes: { id: WeatherMode; label: string }[] = [
   { id: "auto", label: "Live weather" }, { id: "rain", label: "Rain" }, { id: "clear-day", label: "Clear day" },
   { id: "clear-night", label: "Clear night" }, { id: "cloudy", label: "Cloud cover" }, { id: "snow", label: "Snow" }, { id: "mist", label: "Mist" },
 ];
-const filters: { id: ProjectCategory | "all"; label: string }[] = [
-  { id: "all", label: "All work" }, { id: "systems", label: "Systems & low-level" }, { id: "ai", label: "AI & full-stack" }, { id: "games", label: "Game dev & graphics" },
-];
 const stacks = [
-  { label: "SYSTEMS & CORE", items: ["C", "C++", "Java", "Kotlin", "Go", "Linux kernel primitives", "Process isolation", "Networking"] },
-  { label: "GAME DEV & 3D", items: ["C#", "Unity", "Unreal Engine", "Blender", "Shader foundations", "3D mathematics"] },
-  { label: "WEB, DATA & AI", items: ["JavaScript", "TypeScript", "Python", "SQL", "PostGIS", "Scikit-learn", "Gemini API", "CesiumJS"] },
+  { label: "SYSTEMS & CORE", items: ["C", "Python", "Java", "Kotlin", "Android dev", "C++"] },
+  { label: "GAME DEV & 3D", items: ["C#", "Unity", "Blender"] },
+  { label: "WEB, DATA & AI", items: ["JavaScript", "React", "Node.js", "Gemini API", "CesiumJS", "SQL"] },
 ];
+const isStackPrimary = (item: string) =>
+  !["unity", "c++", "blender", "sql"].includes(item.toLowerCase());
 const milestones = [
-  { date: "2025 — PRESENT", title: "Computer Science & Engineering", detail: "Undergraduate studies · Bengaluru", mark: "01" },
+  { date: "2025 — PRESENT", title: "Robotics & Artificial Intelligence", detail: "Undergraduate studies · Bengaluru", mark: "01" },
   { date: "HACK MALENADU ’26", title: "PRISM · Top 12 finalist", detail: "AI-powered customer review intelligence", mark: "02" },
   { date: "RIFT ’26", title: "Systems under constraints", detail: "Competitive build sprint and prototype work", mark: "03" },
   { date: "YUGAANTAR", title: "Ideas into working systems", detail: "Hackathon prototyping across software and hardware", mark: "04" },
   { date: "ONGOING", title: "Hardware & IoT experiments", detail: "Prototyping at the edge of software and physical systems", mark: "05" },
 ];
 
-function Clock({ timezone }: { timezone?: string }) {
-  const [time, setTime] = useState("--:--");
-  useEffect(() => {
-    const update = () => setTime(new Intl.DateTimeFormat("en-IN", { timeZone: timezone || "Asia/Kolkata", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date()));
-    update(); const timer = window.setInterval(update, 15_000); return () => window.clearInterval(timer);
-  }, [timezone]);
-  return <time className="live-clock">{time}</time>;
-}
-
 export function Portfolio() {
-  const { weather, mode, setMode, minimal, setMinimal, refreshLocation, setLocation, error } = useWeather();
+  const router = useRouter();
+  const { weather, mode, setMode, minimal, setMinimal, refreshLocation, error } = useWeather();
   const [projectId, setProjectId] = useState<string | null>(null);
-  const [filter, setFilter] = useState<ProjectCategory | "all">("all");
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [adminOpen, setAdminOpen] = useState(false);
   const [curated, setCurated] = useState<PortfolioProject[]>([]);
   const [mobileMenu, setMobileMenu] = useState(false);
-  const [manualLatitude, setManualLatitude] = useState("12.9716");
-  const [manualLongitude, setManualLongitude] = useState("77.5946");
   const email = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "piyushsukla775314@gmail.com";
-  const leetcodeUsername = process.env.NEXT_PUBLIC_LEETCODE_USERNAME;
-  const codechefUsername = process.env.NEXT_PUBLIC_CODECHEF_USERNAME;
+  const leetcodeUsername = process.env.NEXT_PUBLIC_LEETCODE_USERNAME || "piyushshukla11";
   const projects = useMemo(() => [...featuredProjects, ...curated], [curated]);
-  const shownProjects = filter === "all" ? projects : projects.filter((project) => project.category === filter);
+  const highlightProjects = useMemo(() => {
+    const highlightIds = ["voyage", "ulpin-cadastre"];
+    const list = highlightIds
+      .map((id) => projects.find((p) => p.id === id))
+      .filter(Boolean) as PortfolioProject[];
+    return list.length === 2 ? list : projects.slice(0, 2);
+  }, [projects]);
 
   useEffect(() => {
     let alive = true;
@@ -76,98 +70,210 @@ export function Portfolio() {
     return () => window.removeEventListener("keydown", keys);
   }, []);
 
-  const conditionLabel = mode !== "auto" ? modes.find((item) => item.id === mode)?.label : weather?.condition?.replaceAll("-", " ") || "Finding weather";
-  const location = weather?.location || "Bengaluru";
-  const condition = weather?.condition ?? "clear";
-  const night = weather?.atmosphere === "night" || mode === "clear-night";
-  const isRain = condition === "rain" || condition === "thunderstorm" || mode === "rain";
-  const isSnow = condition === "snow" || mode === "snow";
-  const isSunny = (condition === "clear" || mode === "clear-day") && !night && !isRain && !isSnow;
-  const weatherClass = isRain ? "weather-rain" : isSunny ? "weather-sunny" : night ? "weather-night" : isSnow ? "weather-snow" : "weather-cloudy";
-
-  useEffect(() => {
-    if (weather) {
-      const lat = String(weather.latitude);
-      const lon = String(weather.longitude);
-      queueMicrotask(() => {
-        setManualLatitude(lat);
-        setManualLongitude(lon);
-      });
-    }
-  }, [weather]);
+  const { weatherClass } = useMemo(() => resolveWeatherState(weather, mode), [weather, mode]);
 
   return <div className={`site-shell ${weatherClass}${minimal ? " focus-mode" : ""}`}>
-    <WeatherCanvas onProjectSelect={setProjectId} />
+    <WeatherCanvas onProjectSelect={(target) => router.push(target === "work" ? "/work" : `/projects/${target}`)} />
     <header className="hud-header">
       <a className="brand-lockup" href="#top" aria-label="ME, return to top"><span className="wordmark">ME<span>.</span></span><span className="brand-caption">PIYUSH SHUKLA / PORTFOLIO</span></a>
       <button className="mobile-menu-button" aria-label={mobileMenu ? "Close navigation" : "Open navigation"} onClick={() => setMobileMenu((value) => !value)}>{mobileMenu ? <X size={18} /> : <Menu size={18} />}</button>
       <nav className={`primary-nav${mobileMenu ? " is-open" : ""}`} aria-label="Main navigation">
-        {["Work", "Stack", "Experience", "Competitive", "Contact"].map((label) => <a key={label} href={`#${label.toLowerCase()}`} onClick={() => setMobileMenu(false)}>{label}</a>)}
+        <Link href="/work" onClick={() => setMobileMenu(false)}>Work</Link>
+        <a href="#stack" onClick={() => setMobileMenu(false)}>Stack</a>
+        <a href="#competitive" onClick={() => setMobileMenu(false)}>Competitive</a>
+        <a href="#experience" onClick={() => setMobileMenu(false)}>Experience</a>
+        <Link href="/contact" onClick={() => setMobileMenu(false)}>Contact</Link>
       </nav>
       <div className="hud-actions">
-        <div className="weather-control"><label htmlFor="weather-mode" className="sr-only">Weather simulator</label><select id="weather-mode" value={mode} onChange={(event) => setMode(event.target.value as WeatherMode)} aria-label="Weather simulator">{modes.map((item) => <option value={item.id} key={item.id}>{item.label}</option>)}</select><Cloud size={14} /></div>
+        {mode === "auto" && weather && (
+          <button
+            type="button"
+            className="weather-gps-indicator"
+            title={`${weather.location} · ${Math.round(weather.temperature)}°C (${weather.condition}). Click to re-sync device GPS.`}
+            onClick={() => refreshLocation()}
+            aria-label="Re-sync device GPS location"
+          >
+            <span className="status-light" />
+            <span className="weather-location-name">{weather.location.split(",")[0]}</span>
+            <span className="weather-temp-badge">{Math.round(weather.temperature)}°C</span>
+          </button>
+        )}
+        <div className="weather-control">
+          <label htmlFor="weather-mode" className="sr-only">Weather simulator</label>
+          <select
+            id="weather-mode"
+            value={mode}
+            onChange={(event) => {
+              const nextMode = event.target.value as WeatherMode;
+              setMode(nextMode);
+              if (nextMode === "auto") {
+                refreshLocation();
+              }
+            }}
+            aria-label="Weather simulator"
+          >
+            {modes.map((item) => <option value={item.id} key={item.id}>{item.label}</option>)}
+          </select>
+          <Cloud size={14} />
+        </div>
         <button className={`focus-toggle${minimal ? " is-active" : ""}`} onClick={() => setMinimal(!minimal)} aria-pressed={minimal}>{minimal ? "Focus on" : "Focus mode"}</button>
         <button className="export-button" onClick={() => window.print()}><ArrowDownToLine size={14} /><span>Resume PDF</span></button>
       </div>
     </header>
 
-    <div className="environment-pill" role="status">
-      <span className="status-light" />
-      <span>{location} · {weather ? `${Math.round(weather.temperature)}°C` : "—"} · {conditionLabel}</span>
-      <Clock timezone={weather?.timezone} />
-      <details className="location-override">
-        <summary aria-label="Choose a manual location" title="Choose a manual location"><LocateFixed size={13} /></summary>
-        <div className="location-popover">
-          <span className="eyebrow">LOCATION PREVIEW</span>
-          <form onSubmit={(event) => { event.preventDefault(); setLocation(Number(manualLatitude), Number(manualLongitude)); }}>
-            <label>Latitude<input type="number" min="-90" max="90" step="any" value={manualLatitude} onChange={(event) => setManualLatitude(event.target.value)} required /></label>
-            <label>Longitude<input type="number" min="-180" max="180" step="any" value={manualLongitude} onChange={(event) => setManualLongitude(event.target.value)} required /></label>
-            <button className="button button-primary" type="submit">Preview location</button>
-          </form>
-          <button className="location-reset" type="button" onClick={refreshLocation}>Use my current location</button>
-        </div>
-      </details>
-    </div>
     {error && <span className="weather-error" role="status">{error}</span>}
 
     <main id="top">
       <section className="hero section-wrap" aria-labelledby="hero-title">
         <div className="hero-content">
-          <p className="eyebrow hero-eyebrow"><span className="status-light" /> ❖ BUILDING SYSTEMS THAT HOLD UP ❖</p>
-          <h1 id="hero-title">I make complex<br />systems feel <em>simple.</em></h1>
-          <p className="hero-copy">I’m Piyush Shukla — a computer science undergrad drawn to the layers beneath the interface. I build execution systems, useful AI, and playful worlds.</p>
-          <div className="hero-actions"><a className="button button-primary" href="#work">Explore the index <ArrowRight size={15} /></a><a className="button button-outline" href="https://github.com/piyushshukla11" target="_blank" rel="noreferrer"><Github size={15} /> GitHub <ArrowUpRight size={13} /></a></div>
-          <p className="hero-hint"><span className="hint-mark">❖</span> 8-bit weather engine active. Explore the selected engineering index below.</p>
+          <p className="eyebrow hero-eyebrow"><span className="status-light" /> ❖ KEEP ON BUILDING ❖</p>
+          <h1 id="hero-title">I push pixels until<br />they push <em>back.</em></h1>
+          <p className="hero-copy">I’m Piyush Shukla — a robotics and artificial intelligence undergrad drawn to the layers beneath the interface. I build execution systems, useful AI, and playful worlds.</p>
+          <div className="hero-actions"><Link className="button button-primary" href="/work">Explore the index <ArrowRight size={15} /></Link><a className="button button-outline" href="https://github.com/piyushshukla11" target="_blank" rel="noreferrer"><Github size={15} /> GitHub <ArrowUpRight size={13} /></a></div>
         </div>
         <a className="scroll-cue" href="#work"><span /> SCROLL TO EXPLORE</a>
       </section>
 
       <section id="work" className="section-wrap work-section section-anchor" aria-labelledby="work-title">
-        <div className="section-heading"><div><p className="eyebrow">01 ❖ SELECTED WORK</p><h2 id="work-title">Engineering index<span>.</span></h2></div><p className="section-aside">Builds shaped by curiosity, constraints,<br />and the details underneath.</p></div>
-        <div className="filter-bar" role="group" aria-label="Filter projects">{filters.map((item) => <button key={item.id} onClick={() => setFilter(item.id)} className={filter === item.id ? "is-selected" : ""} aria-pressed={filter === item.id}>{item.label}<span>{item.id === "all" ? projects.length : projects.filter((project) => project.category === item.id).length.toString().padStart(2, "0")}</span></button>)}</div>
-        <div className="project-grid">{shownProjects.map((project, index) => <motion.button key={project.id} className="project-card" onClick={() => setProjectId(project.id)} initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.18 }} transition={{ delay: (index % 2) * 0.08, duration: 0.5 }}>
-          <span className="project-card-top"><span className="project-count">{String(index + 1).padStart(2, "0")} / {project.category.toUpperCase()}</span><span className="project-open"><ArrowUpRight size={16} /></span></span>
-          <span className="project-title">{project.title}</span><span className="project-subtitle">{project.subtitle}</span><span className="project-description">{project.summary}</span>
-          <span className="tag-row">{project.tags.slice(0, 4).map((tag) => <span key={tag} className="tag">{tag}</span>)}</span>
-          <span className="project-card-foot"><span>{project.featured ? "FEATURED CASE STUDY" : "OWNER APPROVED · GITHUB"}</span><span className="card-action-links"><Link href={`/projects/${project.id}`} className="card-page-link" onClick={(e) => e.stopPropagation()} title="Open dedicated project webpage"><span>Webpage</span><ArrowUpRight size={12} /></Link><ArrowRight size={14} /></span></span>
-        </motion.button>)}</div>
-        <p className="weather-index-note"><span className="node-mini" /> Interactive weather nodes are active in the sky. Every project is also available here, independent of weather.</p>
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">01 ❖ SELECTED WORK</p>
+            <h2 id="work-title">Engineering index<span>.</span></h2>
+          </div>
+          <p className="section-aside">Builds shaped by curiosity, constraints,<br />and the details underneath.</p>
+        </div>
+
+        {/* Portal Gateway to Dedicated Engineering Index */}
+        <div className="index-gateway-card">
+          <div className="index-gateway-header">
+            <div className="gateway-badge">
+              <span className="status-light" />
+              <span>DEDICATED ARCHIVE · 10 PRODUCTION SYSTEMS</span>
+            </div>
+            <Link href="/work" className="button button-primary">
+              <span>Open Dedicated Index</span>
+              <ArrowRight size={14} />
+            </Link>
+          </div>
+
+          <div className="gateway-domain-grid">
+            <div className="gateway-domain-item">
+              <span className="domain-index">01</span>
+              <h4>Systems & Low-Level</h4>
+              <p>Linux kernel namespaces, seccomp BPF isolation, and custom runtime execution engines.</p>
+              <span className="domain-count">06 SYSTEMS</span>
+            </div>
+            <div className="gateway-domain-item">
+              <span className="domain-index">02</span>
+              <h4>Planetary AI & Vision</h4>
+              <p>Chandrayaan-2 correspondence, YOLOv9 crater detection, and SPICE ephemeris pipelines.</p>
+              <span className="domain-count">04 SYSTEMS</span>
+            </div>
+            <div className="gateway-domain-item">
+              <span className="domain-index">03</span>
+              <h4>Graphics & Spatial CAD</h4>
+              <p>3D spatial mathematical simulations, CesiumJS planetary viewer, and cadastre integrity.</p>
+              <span className="domain-count">VERIFIED</span>
+            </div>
+          </div>
+
+          {/* Featured flagship preview cards */}
+          <div className="gateway-preview-section">
+            <div className="gateway-preview-title">
+              <span>FEATURED HIGHLIGHTS</span>
+              <Link href="/work" className="gateway-view-all">
+                <span>View all 10 systems in index</span>
+                <ArrowRight size={13} />
+              </Link>
+            </div>
+            <div className="project-grid">
+              {highlightProjects.map((project, index) => (
+                <Link key={project.id} href={`/projects/${project.id}`} className="project-card">
+                  <span className="project-card-top">
+                    <span className="project-count">{String(index + 1).padStart(2, "0")} / {project.category.toUpperCase()}</span>
+                    <span className="project-open" title="Open case study webpage"><ArrowUpRight size={16} /></span>
+                  </span>
+                  <span className="project-title">{project.title}</span>
+                  <span className="project-subtitle">{project.subtitle}</span>
+                  <span className="project-description">{project.summary}</span>
+                  <span className="tag-row">
+                    {project.tags.slice(0, 4).map((tag) => (
+                      <span key={tag} className="tag">{tag}</span>
+                    ))}
+                  </span>
+                  <span className="project-card-foot">
+                    <span>{project.featured ? "FEATURED CASE STUDY" : "OWNER APPROVED · GITHUB"}</span>
+                    <span className="card-webpage-btn" aria-label={`Open ${project.title} webpage`}>
+                      <span>WEBPAGE</span>
+                      <ArrowUpRight size={13} />
+                    </span>
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Launchpad Banner */}
+          <div className="index-launchpad-row">
+            <div className="launchpad-text">
+              <strong>Complete Architecture Archive</strong>
+              <p>Browse all 10 projects with interactive category filters, real-time keyword search, and deep case studies.</p>
+            </div>
+            <Link href="/work" className="index-launchpad-btn">
+              <span>OPEN FULL ENGINEERING INDEX (10)</span>
+              <ArrowRight size={16} />
+            </Link>
+          </div>
+        </div>
       </section>
 
       <section id="stack" className="section-wrap stack-section section-anchor" aria-labelledby="stack-title">
         <div className="section-heading"><div><p className="eyebrow">02 ❖ TOOLING & CRAFT</p><h2 id="stack-title">A practical toolkit<span>.</span></h2></div><p className="section-aside">The tools change. The instinct to understand<br />the system stays.</p></div>
-        <div className="stack-matrix">{stacks.map((group, groupIndex) => <article className="stack-group" key={group.label}><div className="stack-group-head"><span className="stack-number">0{groupIndex + 1}</span><h3>{group.label}</h3></div><div className="stack-items">{group.items.map((item, index) => <span key={item} className={index === 0 ? "stack-primary" : ""}>{item}</span>)}</div></article>)}</div>
-        <div className="stack-footnote"><span>{mode === "clear-night" || weather?.atmosphere === "night" ? "MOON / CORE COMPETENCIES" : "SUN / CORE COMPETENCIES"}</span><span>SELECTED FROM THE CELESTIAL MATRIX</span></div>
+        <div className="stack-matrix">
+          {stacks.map((group, groupIndex) => {
+            const sortedItems = [...group.items].sort((a, b) => {
+              const aPrimary = isStackPrimary(a);
+              const bPrimary = isStackPrimary(b);
+              if (aPrimary && !bPrimary) return -1;
+              if (!aPrimary && bPrimary) return 1;
+              return 0;
+            });
+            return (
+              <article className="stack-group" key={group.label}>
+                <div className="stack-group-head">
+                  <span className="stack-number">0{groupIndex + 1}</span>
+                  <h3>{group.label}</h3>
+                </div>
+                <div className="stack-items">
+                  {sortedItems.map((item) => (
+                    <span
+                      key={item}
+                      className={isStackPrimary(item) ? "stack-primary" : ""}
+                    >
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              </article>
+            );
+          })}
+        </div>
       </section>
 
       <section id="competitive" className="section-wrap competitive-section section-anchor" aria-labelledby="competitive-title">
         <div className="section-heading"><div><p className="eyebrow">03 ❖ ALGORITHMIC PROOF-OF-WORK</p><h2 id="competitive-title">Think in constraints<span>.</span></h2></div><p className="section-aside">Practice that carries back into the code:<br />clear invariants, measured trade-offs.</p></div>
         <div className="competitive-grid">
-          <a className="profile-card" href={leetcodeUsername ? "https://leetcode.com/u/" + encodeURIComponent(leetcodeUsername) + "/" : "https://leetcode.com"} target="_blank" rel="noreferrer"><span className="profile-mark">LC</span><span className="profile-body"><span className="eyebrow">PROBLEM SOLVING</span><strong>LeetCode</strong><small>{leetcodeUsername ? "Dynamic programming · graphs · trees" : "Set NEXT_PUBLIC_LEETCODE_USERNAME to link your profile"}</small></span><ArrowUpRight size={16} /></a>
-          <a className="profile-card" href={codechefUsername ? "https://www.codechef.com/users/" + encodeURIComponent(codechefUsername) : "https://www.codechef.com"} target="_blank" rel="noreferrer"><span className="profile-mark profile-mark-alt">CC</span><span className="profile-body"><span className="eyebrow">CONTEST PRACTICE</span><strong>CodeChef</strong><small>{codechefUsername ? "Complexity · data structures · optimization" : "Set NEXT_PUBLIC_CODECHEF_USERNAME to link your profile"}</small></span><ArrowUpRight size={16} /></a>
+          <a className="profile-card" href={`https://leetcode.com/u/${encodeURIComponent(leetcodeUsername)}/`} target="_blank" rel="noreferrer">
+            <span className="profile-mark">LC</span>
+            <span className="profile-body">
+              <span className="eyebrow">PROBLEM SOLVING</span>
+              <strong>LeetCode</strong>
+              <small>Dynamic programming · graphs · trees & algorithms</small>
+            </span>
+            <ArrowUpRight size={16} />
+          </a>
           <div className="principle-card"><span className="eyebrow">WORKING PRINCIPLE</span><p>“Make the invariant visible. Let the code explain the rest.”</p><span className="principle-signature">P / ENGINEERING NOTES</span></div>
         </div>
-        <p className="data-note">Competition scores are omitted until profile handles or a verified stats feed are configured.</p>
       </section>
 
       <section id="experience" className="section-wrap experience-section section-anchor" aria-labelledby="experience-title">
@@ -181,7 +287,7 @@ export function Portfolio() {
       </section>
     </main>
 
-    <footer className="site-footer"><a href="#top" className="footer-brand">ME<span>.</span></a><span>PIYUSH SHUKLA · SYSTEMS / GAMES / SOFTWARE</span><div><a href="https://github.com/piyushshukla11" target="_blank" rel="noreferrer">GITHUB</a><a href="https://www.linkedin.com/in/piyush-shukla-dev" target="_blank" rel="noreferrer">LINKEDIN</a><button onClick={() => setPaletteOpen(true)}><Command size={12} /> COMMANDS</button></div><span className="footer-year">© {new Date().getFullYear()}</span></footer>
+    <footer className="site-footer"><a href="#top" className="footer-brand">ME<span>.</span></a><span>PIYUSH SHUKLA · SYSTEMS / GAMES / SOFTWARE</span><div><Link href="/work">WORK</Link><Link href="/contact">CONTACT</Link><a href="https://github.com/piyushshukla11" target="_blank" rel="noreferrer">GITHUB</a><a href="https://www.linkedin.com/in/piyush-shukla-dev" target="_blank" rel="noreferrer">LINKEDIN</a><button onClick={() => setPaletteOpen(true)}><Command size={12} /> COMMANDS</button></div><span className="footer-year">© {new Date().getFullYear()}</span></footer>
 
     <button className="command-hint" onClick={() => setPaletteOpen(true)} aria-label="Open command palette"><Command size={14} /><span>COMMANDS</span><kbd>⌘ K</kbd></button>
     <ProjectDrawer projectId={projectId} projects={projects} onClose={() => setProjectId(null)} />

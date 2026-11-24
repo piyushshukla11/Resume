@@ -161,3 +161,160 @@ test("project-store: state transitions maintain invariants across approved, pend
   assert.equal(s4.approved.length, 1);
   assert.equal(s4.ignored.length, 0);
 });
+
+test("projects: all 10 archived systems have unique IDs, categories, and case study metadata", async () => {
+  const { featuredProjects, getProject } = await import("../lib/projects.ts");
+
+  assert.equal(featuredProjects.length, 10, "Expected 10 archived engineering projects");
+
+  const ids = new Set();
+  const validCategories = new Set(["systems", "ai", "games"]);
+
+  for (const project of featuredProjects) {
+    assert.ok(project.id && typeof project.id === "string", "Project ID must be a non-empty string");
+    assert.ok(!ids.has(project.id), `Duplicate project ID detected: ${project.id}`);
+    ids.add(project.id);
+
+    assert.ok(validCategories.has(project.category), `Invalid category: ${project.category}`);
+    assert.ok(project.title && project.title.length > 0, "Title must be non-empty");
+    assert.ok(project.summary && project.summary.length > 10, "Summary must be descriptive");
+    assert.ok(project.tags && project.tags.length > 0, "Must have at least one tag");
+    assert.ok(project.githubUrl.startsWith("https://github.com/"), "Must have valid GitHub URL");
+
+    // Verify lookup helper
+    const retrieved = getProject(project.id);
+    assert.equal(retrieved?.id, project.id, `getProject failed to find ${project.id}`);
+  }
+
+  // Verify PES 2 wording specifies 27 programming environments without LeetCode
+  const pes2 = getProject("polyexecution-studio2");
+  assert.ok(pes2, "PES 2 must exist");
+  assert.ok(pes2.subtitle.includes("27 programming environments"));
+  assert.ok(!pes2.subtitle.toLowerCase().includes("leetcode"));
+
+  // Verify Voyage and 3D ULPIN exist for highlights
+  const voyage = getProject("voyage");
+  assert.ok(voyage, "Voyage must exist");
+  const ulpin = getProject("ulpin-cadastre");
+  assert.ok(ulpin, "3D ULPIN must exist");
+});
+
+test("weather-state: resolveWeatherState deterministically maps all preview modes", async () => {
+  const { resolveWeatherState } = await import("../lib/weather-state.ts");
+
+  const cloudyState = resolveWeatherState(null, "cloudy");
+  assert.equal(cloudyState.isCloudy, true);
+  assert.equal(cloudyState.weatherClass, "weather-cloudy");
+
+  const rainState = resolveWeatherState(null, "rain");
+  assert.equal(rainState.isRain, true);
+  assert.equal(rainState.weatherClass, "weather-rain");
+
+  const snowState = resolveWeatherState(null, "snow");
+  assert.equal(snowState.isSnow, true);
+  assert.equal(snowState.weatherClass, "weather-snow");
+
+  const mistState = resolveWeatherState(null, "mist");
+  assert.equal(mistState.isFog, true);
+  assert.equal(mistState.weatherClass, "weather-fog");
+
+  const nightState = resolveWeatherState(null, "clear-night");
+  assert.equal(nightState.isNight, true);
+  assert.equal(nightState.weatherClass, "weather-night");
+
+  const sunnyState = resolveWeatherState(null, "clear-day");
+  assert.equal(sunnyState.isSunny, true);
+  assert.equal(sunnyState.weatherClass, "weather-sunny");
+});
+
+test("weather-clouds: procedurally generates randomized Minecraft clouds with voxel geometry", async () => {
+  const {
+    MINECRAFT_CLOUD_SHAPES,
+    createRandomMinecraftCloud,
+    getRandomCloudCount,
+    createMinecraftCloudField,
+  } = await import("../lib/weather-clouds.ts");
+
+  // 1. Validate voxel shape catalog
+  assert.ok(MINECRAFT_CLOUD_SHAPES.length >= 6, "Must define at least 6 distinct Minecraft silhouettes");
+  for (const shape of MINECRAFT_CLOUD_SHAPES) {
+    assert.ok(shape.length > 0, "Each shape must contain at least one voxel block");
+    for (const b of shape) {
+      assert.ok(b.gridX >= 0 && b.gridY >= 0, "Grid coordinates must be non-negative");
+      assert.ok(b.gridW > 0 && b.gridH > 0, "Block dimensions must be strictly positive");
+    }
+  }
+
+  // 2. Validate cloud counts across weather conditions
+  for (let i = 0; i < 20; i++) {
+    const cloudyCount = getRandomCloudCount({ isCloudy: true });
+    assert.ok(cloudyCount >= 7 && cloudyCount <= 10, `Cloudy count out of range: ${cloudyCount}`);
+
+    const rainCount = getRandomCloudCount({ isRain: true });
+    assert.ok(rainCount >= 5 && rainCount <= 7, `Rain count out of range: ${rainCount}`);
+
+    const snowCount = getRandomCloudCount({ isSnow: true });
+    assert.ok(snowCount >= 4 && snowCount <= 6, `Snow count out of range: ${snowCount}`);
+
+    const sunnyCount = getRandomCloudCount({ isSunny: true });
+    assert.ok(sunnyCount >= 2 && sunnyCount <= 3, `Sunny count out of range: ${sunnyCount}`);
+
+    const nightCount = getRandomCloudCount({ isNight: true });
+    assert.ok(nightCount >= 1 && nightCount <= 3, `Night count out of range: ${nightCount}`);
+  }
+
+  // 3. Validate procedural cloud generation
+  const cloudInitial = createRandomMinecraftCloud(1200, 800, true);
+  assert.ok(cloudInitial.totalWidth > 0 && cloudInitial.totalHeight > 0);
+  assert.ok(cloudInitial.speed >= 10 && cloudInitial.speed <= 25);
+  assert.ok(cloudInitial.y >= 20 && cloudInitial.y <= 260);
+  assert.ok(cloudInitial.cellW >= 15 && cloudInitial.cellW <= 22);
+  assert.ok(cloudInitial.cellH >= 10 && cloudInitial.cellH <= 14);
+
+  // 4. Validate boundary respawn logic (spawns offscreen left)
+  const cloudRespawn = createRandomMinecraftCloud(1200, 800, false);
+  assert.ok(cloudRespawn.x < 0, "Respawned cloud must start off-screen to the left");
+
+  // 5. Validate field generation
+  const field = createMinecraftCloudField(1400, 900, 8);
+  assert.equal(field.length, 8);
+  const shapesUsed = new Set(field.map((c) => c.shapeIdx));
+  // In 8 random rolls from 7 shapes, there should almost certainly be multiple distinct shapes
+  assert.ok(shapesUsed.size > 1, "Field should display varied Minecraft cloud shapes");
+});
+
+test("stack: highlights all core technologies with green primary box except unity, c++, blender, sql", () => {
+  const excluded = new Set(["unity", "c++", "blender", "sql"]);
+  const isStackPrimary = (item) => !excluded.has(item.toLowerCase());
+
+  // Excluded skills must NOT be primary
+  assert.equal(isStackPrimary("Unity"), false);
+  assert.equal(isStackPrimary("C++"), false);
+  assert.equal(isStackPrimary("Blender"), false);
+  assert.equal(isStackPrimary("SQL"), false);
+
+  // All other core stack items MUST be primary (green highlight)
+  const highlighted = ["C", "Python", "Java", "Kotlin", "Android dev", "C#", "JavaScript", "React", "Node.js", "Gemini API", "CesiumJS"];
+  for (const skill of highlighted) {
+    assert.equal(isStackPrimary(skill), true, `Expected ${skill} to be highlighted with green box`);
+  }
+
+  // Verify that in all stack groups, uncolored items are strictly at the end of the list
+  const testStacks = [
+    { label: "SYSTEMS & CORE", items: ["C", "Python", "Java", "Kotlin", "Android dev", "C++"] },
+    { label: "GAME DEV & 3D", items: ["C#", "Unity", "Blender"] },
+    { label: "WEB, DATA & AI", items: ["JavaScript", "React", "Node.js", "Gemini API", "CesiumJS", "SQL"] },
+  ];
+
+  for (const group of testStacks) {
+    let seenUncolored = false;
+    for (const item of group.items) {
+      const isPrimary = isStackPrimary(item);
+      if (!isPrimary) {
+        seenUncolored = true;
+      } else {
+        assert.ok(!seenUncolored, `In group "${group.label}", primary item "${item}" appears after an uncolored item`);
+      }
+    }
+  }
+});

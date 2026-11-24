@@ -8,7 +8,6 @@ import {
   Check,
   Code2,
   Copy,
-  ExternalLink,
   Github,
   Linkedin,
   Mail,
@@ -76,12 +75,12 @@ export default function ContactPage() {
           </div>
 
           <h1 className="bio-heading">
-            I make complex<br />systems feel <em>simple.</em>
+            I push pixels until<br />they push <em>back.</em>
           </h1>
 
           <div className="bio-description-body">
             <p>
-              I’m <strong>Piyush Shukla</strong> — a computer science undergraduate driven by the foundational
+              I’m <strong>Piyush Shukla</strong> — a robotics and artificial intelligence undergraduate driven by the foundational
               layers underneath the interface. I design execution engines, resilient AI toolchains,
               lunar computer vision systems, and interactive worlds.
             </p>
@@ -96,7 +95,7 @@ export default function ContactPage() {
           <div className="bio-pillars">
             <div className="pillar-item">
               <span className="pillar-label"><Terminal size={13} /> CORE LANGUAGES</span>
-              <span className="pillar-value">C · C++ · Java · Kotlin · Go · Python · TypeScript</span>
+              <span className="pillar-value">C · C++ · Python · Java · Kotlin · Android Dev · React · Node.js</span>
             </div>
             <div className="pillar-item">
               <span className="pillar-label"><Code2 size={13} /> FOCUS DOMAINS</span>
@@ -148,7 +147,7 @@ export default function ContactPage() {
             <strong className="channel-title">GitHub</strong>
             <p className="channel-handle">github.com/piyushshukla11</p>
             <p className="channel-copy">
-              Explore 9+ authentic personal & team repositories, systems architectures, compiler pipelines, and commit histories.
+              Explore 10+ authentic personal & team repositories, systems architectures, compiler pipelines, and commit histories.
             </p>
             <a
               href="https://github.com/piyushshukla11"
@@ -194,7 +193,7 @@ export default function ContactPage() {
             </div>
           </div>
 
-          {/* 4. Competitive Programming (LeetCode & CodeChef) */}
+          {/* 4. Competitive Programming (LeetCode) */}
           <div className="channel-card channel-competitive">
             <div className="channel-card-head">
               <div className="channel-icon-wrap competitive-icon">
@@ -202,31 +201,20 @@ export default function ContactPage() {
               </div>
               <span className="channel-tag">ALGORITHMS & SPEED</span>
             </div>
-            <strong className="channel-title">Competitive Profiles</strong>
-            <p className="channel-handle">LeetCode & CodeChef (@piyushshukla11)</p>
+            <strong className="channel-title">Competitive Profile</strong>
+            <p className="channel-handle">LeetCode (@piyushshukla11)</p>
             <p className="channel-copy">
-              Data structures, dynamic programming, graph theory, and algorithmic speed benchmarks.
+              Data structures, dynamic programming, graph theory, and algorithmic problem-solving benchmarks.
             </p>
-            <div className="channel-dual-actions">
-              <a
-                href="https://leetcode.com/u/piyushshukla11/"
-                target="_blank"
-                rel="noreferrer"
-                className="channel-action-btn secondary-btn"
-              >
-                <span>LeetCode</span>
-                <ExternalLink size={13} />
-              </a>
-              <a
-                href="https://www.codechef.com/users/piyushshukla11"
-                target="_blank"
-                rel="noreferrer"
-                className="channel-action-btn secondary-btn"
-              >
-                <span>CodeChef</span>
-                <ExternalLink size={13} />
-              </a>
-            </div>
+            <a
+              href="https://leetcode.com/u/piyushshukla11/"
+              target="_blank"
+              rel="noreferrer"
+              className="channel-cta-button"
+            >
+              <span>Open LeetCode Profile</span>
+              <ArrowUpRight size={15} />
+            </a>
           </div>
         </section>
 

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getWeather, moonPhaseAt, solarElevationAt, atmosphereAt } from "@/lib/weather";
 
-export const revalidate = 600;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 const fallback = {
   latitude: 12.9716,
@@ -75,7 +76,10 @@ export async function GET(request: NextRequest) {
 
   try {
     const weather = await getWeather(latitude, longitude);
-    return NextResponse.json({ ...weather, location, country, source }, { headers: { "Cache-Control": "public, s-maxage=600, stale-while-revalidate=1800" } });
+    return NextResponse.json(
+      { ...weather, location, country, source },
+      { headers: { "Cache-Control": "no-store, max-age=0, must-revalidate" } }
+    );
   } catch {
     const now = new Date();
     const solarElevation = solarElevationAt(now, latitude, longitude);
