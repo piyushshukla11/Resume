@@ -30,16 +30,16 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
     const ctx = canvas?.getContext("2d", { alpha: true });
     if (!canvas || !wrapper || !ctx) return;
 
-    let width = wrapper.clientWidth || 380;
-    let height = wrapper.clientHeight || 380;
+    let width = window.innerWidth;
+    let height = window.innerHeight;
     let dpr = Math.min(window.devicePixelRatio || 1, 2);
     let frame = 0;
     let visible = true;
 
     const resize = () => {
       if (!canvas || !wrapper) return;
-      width = wrapper.clientWidth || 380;
-      height = wrapper.clientHeight || 380;
+      width = window.innerWidth;
+      height = window.innerHeight;
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = Math.floor(width * dpr);
       canvas.height = Math.floor(height * dpr);
@@ -196,9 +196,11 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
 
       ctx.clearRect(0, 0, width, height);
       const calm = reducedMotion || minimal;
+      const isMobile = width < 768;
 
-      const celestialX = Math.round(width / 2);
-      const celestialY = Math.round(height / 2);
+      // Position in the upper-right sky of the page
+      const celestialX = isMobile ? Math.round(width * 0.82) : Math.round(width * 0.85);
+      const celestialY = isMobile ? Math.round(height * 0.16) : Math.round(height * 0.17);
 
       if (night) {
         drawPixelMoon(celestialX, celestialY);
@@ -222,7 +224,7 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
     <div
       ref={wrapRef}
       aria-hidden="false"
-      className={`weather-layer weather-${condition}${night ? " is-night" : ""}${minimal ? " is-minimal" : ""}`}
+      className={`weather-layer weather-${condition}${night ? " is-night" : ""}${minimal ? " is-minimal" : ""}${isDialogueOpen ? " has-dialogue-open" : ""}`}
     >
       <canvas ref={canvasRef} aria-hidden="true" className="weather-canvas" />
 
@@ -240,7 +242,16 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
 
         {/* Retro Pixel Dialogue Popup - Appears only when pressed */}
         {isDialogueOpen && (
-          <div className="celestial-dialogue-card" role="dialog" aria-label="Technical Profile">
+          <>
+            <div
+              className="celestial-scrim"
+              aria-hidden="true"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsDialogueOpen(false);
+              }}
+            />
+            <div className="celestial-dialogue-card" role="dialog" aria-label="Technical Profile">
             <div className="dialogue-header">
               <span className="dialogue-badge">
                 {night ? "🌙 LUNAR SYSTEM" : "☀️ SOLAR SYSTEM"}
@@ -304,6 +315,7 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
               </button>
             </div>
           </div>
+          </>
         )}
       </div>
     </div>

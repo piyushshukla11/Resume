@@ -57,47 +57,53 @@ button { color: inherit; }
   position: relative;
   isolation: isolate;
   min-height: 100vh;
-  overflow: clip;
+  overflow-x: clip;
   background:
-    radial-gradient(ellipse 70% 50% at 80% 25%, rgba(254, 240, 138, 0.35), transparent 60%),
+    radial-gradient(ellipse 70% 50% at 85% 17%, rgba(254, 240, 138, 0.35), transparent 60%),
     radial-gradient(circle at 55% 40%, rgba(56, 189, 248, 0.35), transparent 65%),
     linear-gradient(180deg, #0b2545 0%, #134074 25%, #1d65bd 50%, #0e3b6e 80%, #081c34 100%);
+  background-attachment: fixed;
   transition: background 0.8s ease;
 }
 
 .site-shell.weather-sunny {
   background:
-    radial-gradient(ellipse 65% 50% at 82% 25%, rgba(254, 240, 138, 0.45), transparent 60%),
+    radial-gradient(ellipse 65% 50% at 85% 17%, rgba(254, 240, 138, 0.45), transparent 60%),
     radial-gradient(circle at 55% 38%, rgba(56, 189, 248, 0.42), transparent 65%),
     linear-gradient(180deg, #0b3260 0%, #175498 25%, #1d65bd 52%, #104177 82%, #081c34 100%);
+  background-attachment: fixed;
 }
 
 .site-shell.weather-night {
   background:
-    radial-gradient(ellipse 55% 45% at 80% 25%, rgba(147, 197, 253, 0.32), transparent 55%),
+    radial-gradient(ellipse 55% 45% at 85% 17%, rgba(147, 197, 253, 0.32), transparent 55%),
     linear-gradient(180deg, #020617 0%, #0a1426 30%, #0f2244 65%, #050b16 100%);
+  background-attachment: fixed;
 }
 
 .site-shell.weather-rain {
   background:
-    radial-gradient(ellipse 60% 50% at 75% 30%, rgba(96, 165, 250, 0.22), transparent 65%),
+    radial-gradient(ellipse 60% 50% at 80% 20%, rgba(96, 165, 250, 0.22), transparent 65%),
     linear-gradient(180deg, #09111a 0%, #152538 35%, #1d334a 68%, #0b1520 100%);
+  background-attachment: fixed;
 }
 
 .site-shell.weather-snow {
   background:
-    radial-gradient(ellipse 60% 50% at 80% 28%, rgba(224, 242, 254, 0.3), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 85% 17%, rgba(224, 242, 254, 0.3), transparent 60%),
     linear-gradient(180deg, #0c1524 0%, #1e293b 35%, #2a415e 68%, #0f1929 100%);
+  background-attachment: fixed;
 }
 
 .site-shell.weather-cloudy {
   background:
-    radial-gradient(ellipse 60% 50% at 70% 30%, rgba(148, 163, 184, 0.25), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 75% 20%, rgba(148, 163, 184, 0.25), transparent 60%),
     linear-gradient(180deg, #0b141d 0%, #1a2937 38%, #25394a 70%, #0e1720 100%);
+  background-attachment: fixed;
 }
 
 .site-shell::before {
-  position: absolute;
+  position: fixed;
   z-index: -1;
   content: "";
   inset: 0;
@@ -108,15 +114,19 @@ button { color: inherit; }
 
 .site-shell.focus-mode {
   background: linear-gradient(180deg, #07111c, #091522 55%, #050d16);
+  background-attachment: fixed;
 }
 
 .weather-layer {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
+  position: fixed;
+  z-index: 1;
+  inset: 0;
+  overflow: hidden;
   pointer-events: none;
   transition: background 1.2s ease;
+}
+.weather-layer.has-dialogue-open {
+  z-index: 40;
 }
 .weather-layer.is-minimal { opacity: .44; }
 .weather-canvas {
@@ -131,10 +141,17 @@ button { color: inherit; }
 }
 .celestial-anchor {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  top: 17%;
+  left: 85%;
   z-index: 10;
   transform: translate(-50%, -50%);
+  pointer-events: auto;
+}
+.celestial-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  background: transparent;
   pointer-events: auto;
 }
 
@@ -508,33 +525,24 @@ button { color: inherit; }
    Hero Section with Voxel Typography & Chunky RPG Buttons
    ========================================================================== */
 main, .site-footer { position: relative; z-index: 3; }
+main { pointer-events: none; }
+main a,
+main button,
+main input,
+main select,
+main textarea,
+.section-wrap > *,
+.hero-content,
+.index-gateway-card,
+.project-card,
+.profile-card,
+.timeline-card,
+.gateway-domain-item {
+  pointer-events: auto;
+}
 .section-wrap { width: min(1120px, calc(100% - 80px)); margin-inline: auto; }
-.hero {
-  position: relative;
-  display: flex;
-  min-height: 775px;
-  align-items: center;
-  justify-content: space-between;
-  gap: 32px;
-  padding-top: 112px;
-  padding-bottom: 95px;
-}
-.hero-content {
-  position: relative;
-  z-index: 4;
-  width: min(640px, 60%);
-  flex: 1 1 auto;
-}
-.hero-celestial-stage {
-  position: relative;
-  z-index: 5;
-  width: 380px;
-  height: 380px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+.hero { position: relative; display: flex; min-height: 775px; align-items: center; padding-top: 112px; padding-bottom: 95px; }
+.hero-content { position: relative; z-index: 4; width: min(650px, 65%); }
 .eyebrow {
   display: flex;
   align-items: center;
@@ -1465,8 +1473,6 @@ main, .site-footer { position: relative; z-index: 3; }
   .focus-toggle { display: none; }
   .environment-pill { left: 24px; }
   .hero-instrument { right: 0; width: 240px; }
-  .hero { gap: 20px; min-height: 700px; }
-  .hero-celestial-stage { width: 320px; height: 320px; }
   .competitive-grid { grid-template-columns: 1fr 1fr; }
   .principle-card { grid-column: span 2; min-height: 110px; }
 }
@@ -1486,20 +1492,8 @@ main, .site-footer { position: relative; z-index: 3; }
   .environment-pill { top: 77px; left: 12px; gap: 7px; padding: 7px 9px; font-size: 8px; }
   .weather-error { top: 111px; left: 15px; }
   .section-wrap, .site-footer { width: calc(100% - 36px); }
-  .hero {
-    min-height: auto;
-    flex-direction: column;
-    align-items: center;
-    padding-top: 200px;
-    padding-bottom: 90px;
-    gap: 28px;
-  }
+  .hero { min-height: 760px; align-items: flex-start; padding-top: 219px; padding-bottom: 90px; }
   .hero-content { width: 100%; }
-  .hero-celestial-stage {
-    width: 280px;
-    height: 280px;
-    margin: 10px auto 0;
-  }
   .hero h1 { font-size: clamp(48px, 12.4vw, 76px); }
   .hero-copy { max-width: 440px; margin-top: 22px; font-size: 13px; }
   .hero-instrument { right: 0; bottom: 88px; width: 230px; }
@@ -1540,13 +1534,13 @@ main, .site-footer { position: relative; z-index: 3; }
   .project-drawer { padding: 22px 21px 30px; }
   .drawer-index { margin-top: 30px; }
   .admin-drawer h2 { font-size: 32px; }
-  .celestial-anchor { top: 50%; left: 50%; }
+  .celestial-anchor { top: 16%; left: 82%; }
   .celestial-dialogue-card {
     top: calc(100% + 14px);
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
-    width: min(300px, calc(100vw - 32px));
+    right: 0;
+    left: auto;
+    transform: none;
+    width: min(290px, 86vw);
   }
 }
 @media (max-width: 390px) {
