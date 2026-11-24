@@ -18,7 +18,7 @@ const modes: { id: WeatherMode; label: string }[] = [
   { id: "clear-night", label: "Clear night" }, { id: "cloudy", label: "Cloud cover" }, { id: "snow", label: "Snow" }, { id: "mist", label: "Mist" },
 ];
 const stacks = [
-  { label: "SYSTEMS & CORE", items: ["C", "C++", "Java", "Kotlin", "Go", "Linux kernel primitives", "Process isolation", "Networking"] },
+  { label: "SYSTEMS & CORE", items: ["C", "C++", "Python", "Java", "Kotlin", "Android dev"] },
   { label: "GAME DEV & 3D", items: ["C#", "Unity", "Unreal Engine", "Blender", "Shader foundations", "3D mathematics"] },
   { label: "WEB, DATA & AI", items: ["JavaScript", "TypeScript", "Python", "SQL", "PostGIS", "Scikit-learn", "Gemini API", "CesiumJS"] },
 ];

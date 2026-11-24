@@ -96,7 +96,7 @@ export default function ContactPage() {
           <div className="bio-pillars">
             <div className="pillar-item">
               <span className="pillar-label"><Terminal size={13} /> CORE LANGUAGES</span>
-              <span className="pillar-value">C · C++ · Java · Kotlin · Go · Python · TypeScript</span>
+              <span className="pillar-value">C · C++ · Python · Java · Kotlin · Android Dev · TypeScript</span>
             </div>
             <div className="pillar-item">
               <span className="pillar-label"><Code2 size={13} /> FOCUS DOMAINS</span>
