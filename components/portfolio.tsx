@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowDownToLine, ArrowRight, ArrowUpRight, Cloud, Command, Github, Linkedin, Menu, X } from "lucide-react";
 import { useWeather } from "@/components/weather-provider";
+import { resolveWeatherState } from "@/lib/weather-state";
 import { WeatherCanvas } from "@/components/weather-canvas";
 import { ProjectDrawer } from "@/components/project-drawer";
 import { AdminDrawer } from "@/components/admin-drawer";
@@ -61,12 +62,7 @@ export function Portfolio() {
     return () => window.removeEventListener("keydown", keys);
   }, []);
 
-  const condition = weather?.condition ?? "clear";
-  const night = weather?.atmosphere === "night" || mode === "clear-night";
-  const isRain = condition === "rain" || condition === "thunderstorm" || mode === "rain";
-  const isSnow = condition === "snow" || mode === "snow";
-  const isSunny = (condition === "clear" || mode === "clear-day") && !night && !isRain && !isSnow;
-  const weatherClass = isRain ? "weather-rain" : isSunny ? "weather-sunny" : night ? "weather-night" : isSnow ? "weather-snow" : "weather-cloudy";
+  const { weatherClass } = useMemo(() => resolveWeatherState(weather, mode), [weather, mode]);
 
   return <div className={`site-shell ${weatherClass}${minimal ? " focus-mode" : ""}`}>
     <WeatherCanvas onProjectSelect={(target) => router.push(target === "work" ? "/work" : `/projects/${target}`)} />

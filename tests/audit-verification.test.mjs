@@ -186,3 +186,31 @@ test("projects: all 10 archived systems have unique IDs, categories, and case st
     assert.equal(retrieved?.id, project.id, `getProject failed to find ${project.id}`);
   }
 });
+
+test("weather-state: resolveWeatherState deterministically maps all preview modes", async () => {
+  const { resolveWeatherState } = await import("../lib/weather-state.ts");
+
+  const cloudyState = resolveWeatherState(null, "cloudy");
+  assert.equal(cloudyState.isCloudy, true);
+  assert.equal(cloudyState.weatherClass, "weather-cloudy");
+
+  const rainState = resolveWeatherState(null, "rain");
+  assert.equal(rainState.isRain, true);
+  assert.equal(rainState.weatherClass, "weather-rain");
+
+  const snowState = resolveWeatherState(null, "snow");
+  assert.equal(snowState.isSnow, true);
+  assert.equal(snowState.weatherClass, "weather-snow");
+
+  const mistState = resolveWeatherState(null, "mist");
+  assert.equal(mistState.isFog, true);
+  assert.equal(mistState.weatherClass, "weather-fog");
+
+  const nightState = resolveWeatherState(null, "clear-night");
+  assert.equal(nightState.isNight, true);
+  assert.equal(nightState.weatherClass, "weather-night");
+
+  const sunnyState = resolveWeatherState(null, "clear-day");
+  assert.equal(sunnyState.isSunny, true);
+  assert.equal(sunnyState.weatherClass, "weather-sunny");
+});

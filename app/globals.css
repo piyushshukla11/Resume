@@ -97,8 +97,16 @@ button { color: inherit; }
 
 .site-shell.weather-cloudy {
   background:
-    radial-gradient(ellipse 60% 50% at 75% 20%, rgba(148, 163, 184, 0.25), transparent 60%),
-    linear-gradient(180deg, #0b141d 0%, #1a2937 38%, #25394a 70%, #0e1720 100%);
+    radial-gradient(ellipse 65% 50% at 85% 17%, rgba(148, 163, 184, 0.35), transparent 60%),
+    radial-gradient(circle at 45% 35%, rgba(100, 116, 139, 0.3), transparent 65%),
+    linear-gradient(180deg, #101c28 0%, #1c2c3b 25%, #2a3d4f 55%, #182431 82%, #0d151e 100%);
+  background-attachment: fixed;
+}
+
+.site-shell.weather-fog {
+  background:
+    radial-gradient(ellipse 70% 50% at 85% 17%, rgba(148, 163, 184, 0.32), transparent 65%),
+    linear-gradient(180deg, #0e1721 0%, #1f2d3d 38%, #2e3e4f 70%, #131c26 100%);
   background-attachment: fixed;
 }
 

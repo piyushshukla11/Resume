@@ -2,8 +2,116 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useWeather } from "@/components/weather-provider";
-import { withMode } from "@/lib/weather-state";
-import type { WeatherCondition } from "@/lib/weather";
+import { resolveWeatherState } from "@/lib/weather-state";
+
+type PixelPuff = {
+  rx: number; // 0..1 fraction of cloud width
+  ry: number; // px offset from cloud top
+  rw: number; // 0..1 fraction of cloud width
+  rh: number; // px height of puff
+};
+
+type PixelCloud = {
+  x: number;
+  y: number;
+  width: number;
+  speed: number;
+  puffs: PixelPuff[];
+};
+
+type Raindrop = {
+  x: number;
+  y: number;
+  vy: number;
+  len: number;
+  alpha: number;
+};
+
+type RainSplash = {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  alpha: number;
+};
+
+type Snowflake = {
+  x: number;
+  y: number;
+  vy: number;
+  phase: number;
+  size: number;
+};
+
+type Star = {
+  x: number;
+  y: number;
+  phase: number;
+  armLen: number;
+};
+
+function createClouds(width: number): PixelCloud[] {
+  const standardPuffs: PixelPuff[] = [
+    { rx: 0.02, ry: 8, rw: 0.36, rh: 18 },
+    { rx: 0.20, ry: 0, rw: 0.50, rh: 28 },
+    { rx: 0.56, ry: 6, rw: 0.40, rh: 22 },
+    { rx: 0.05, ry: 16, rw: 0.90, rh: 14 },
+  ];
+
+  const tallPuffs: PixelPuff[] = [
+    { rx: 0.03, ry: 12, rw: 0.34, rh: 20 },
+    { rx: 0.22, ry: 0, rw: 0.46, rh: 32 },
+    { rx: 0.54, ry: 8, rw: 0.42, rh: 24 },
+    { rx: 0.08, ry: 20, rw: 0.84, rh: 16 },
+  ];
+
+  const widePuffs: PixelPuff[] = [
+    { rx: 0.01, ry: 10, rw: 0.28, rh: 16 },
+    { rx: 0.16, ry: 2, rw: 0.42, rh: 26 },
+    { rx: 0.46, ry: 0, rw: 0.38, rh: 28 },
+    { rx: 0.70, ry: 6, rw: 0.28, rh: 20 },
+    { rx: 0.04, ry: 16, rw: 0.92, rh: 14 },
+  ];
+
+  return [
+    { x: width * 0.05, y: 45, width: 220, speed: 16, puffs: standardPuffs },
+    { x: width * 0.40, y: 105, width: 280, speed: 22, puffs: widePuffs },
+    { x: width * 0.75, y: 35, width: 190, speed: 13, puffs: tallPuffs },
+    { x: width * 0.22, y: 165, width: 310, speed: 19, puffs: widePuffs },
+    { x: width * 0.85, y: 130, width: 240, speed: 15, puffs: standardPuffs },
+    { x: width * 0.52, y: 210, width: 200, speed: 20, puffs: tallPuffs },
+    { x: width * 0.12, y: 265, width: 260, speed: 14, puffs: standardPuffs },
+  ];
+}
+
+function createRaindrops(w: number, h: number, count: number): Raindrop[] {
+  return Array.from({ length: count }, () => ({
+    x: Math.random() * (w + 120) - 60,
+    y: Math.random() * h,
+    vy: 540 + Math.random() * 220,
+    len: 12 + Math.floor(Math.random() * 8),
+    alpha: 0.45 + Math.random() * 0.45,
+  }));
+}
+
+function createSnowflakes(w: number, h: number, count: number): Snowflake[] {
+  return Array.from({ length: count }, () => ({
+    x: Math.random() * w,
+    y: Math.random() * h,
+    vy: 30 + Math.random() * 32,
+    phase: Math.random() * Math.PI * 2,
+    size: Math.random() > 0.4 ? 3 : 2,
+  }));
+}
+
+function createStars(w: number, h: number, count: number): Star[] {
+  return Array.from({ length: count }, () => ({
+    x: Math.random() * w,
+    y: Math.random() * (h * 0.65),
+    phase: Math.random() * Math.PI * 2,
+    armLen: Math.random() > 0.6 ? 3 : 2,
+  }));
+}
 
 export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectId: string) => void } = {}) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -12,9 +120,10 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
   const [reducedMotion, setReducedMotion] = useState(false);
   const [isDialogueOpen, setIsDialogueOpen] = useState(false);
 
-  const activeWeather = useMemo(() => (weather ? withMode(weather, mode) : null), [weather, mode]);
-  const condition: WeatherCondition = activeWeather?.condition ?? "clear";
-  const night = activeWeather?.atmosphere === "night" || mode === "clear-night";
+  const { active, condition, isNight, isRain, isSnow, isFog, isCloudy, isSunny } = useMemo(
+    () => resolveWeatherState(weather, mode),
+    [weather, mode]
+  );
 
   useEffect(() => {
     const query = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -35,6 +144,7 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
     let dpr = Math.min(window.devicePixelRatio || 1, 2);
     let frame = 0;
     let visible = true;
+    let previousTime = 0;
 
     const resize = () => {
       if (!canvas || !wrapper) return;
@@ -46,7 +156,7 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.imageSmoothingEnabled = false; // Strictly enforce crisp pixel art!
+      ctx.imageSmoothingEnabled = false; // strictly crisp pixel art
     };
 
     const visibility = () => {
@@ -66,29 +176,47 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
     document.addEventListener("visibilitychange", visibility);
     resize();
 
+    // Weather entities
+    const clouds = createClouds(width);
+    const raindrops = createRaindrops(width, height, 75);
+    const splashes: RainSplash[] = [];
+    const snowflakes = createSnowflakes(width, height, 65);
+    const stars = createStars(width, height, 50);
+
+    let mistOffset = 0;
+    let lightningTimer = 0;
+    let lightningActive = 0;
+    let lightningBolt: { x: number; y: number }[] = [];
+    let shootingStarTimer = 0;
+    let shootingStarActive = false;
+    let shootingStarX = 0;
+    let shootingStarY = 0;
+    let shootingStarProgress = 0;
+
     // =========================================================================
     // 1. RADIANT 16-BIT PIXEL SUN ENGINE
     // =========================================================================
-    const drawPixelSun = (scx: number, scy: number, t: number, isCalm: boolean) => {
+    const drawPixelSun = (scx: number, scy: number, t: number, isCalm: boolean, overcast: boolean) => {
       const isMobile = width < 340;
       const ps = isMobile ? 3 : 4;
       const radiusBlocks = 11;
 
-      // Soft Ambient Stepped Pixel Solar Halo
+      // Soft Ambient Stepped Solar Halo
+      const haloAlpha = overcast ? 0.07 : 0.14;
       for (let gy = -radiusBlocks - 8; gy <= radiusBlocks + 8; gy += 2) {
         for (let gx = -radiusBlocks - 8; gx <= radiusBlocks + 8; gx += 2) {
           const distSq = gx * gx + gy * gy;
           if (distSq > radiusBlocks * radiusBlocks && distSq <= (radiusBlocks + 8) * (radiusBlocks + 8)) {
             const glowDist = Math.sqrt(distSq);
             const norm = 1 - (glowDist - radiusBlocks) / 8;
-            ctx.fillStyle = `rgba(251, 191, 36, ${Math.max(0, norm * 0.12)})`;
+            ctx.fillStyle = `rgba(251, 191, 36, ${Math.max(0, norm * haloAlpha)})`;
             ctx.fillRect(scx + gx * ps, scy + gy * ps, ps * 2, ps * 2);
           }
         }
       }
 
-      // Concentric Expanding Pixel Rings (Coronal emission shockwaves)
-      if (!isCalm) {
+      // Concentric Expanding Coronal Shockwaves
+      if (!isCalm && !overcast) {
         for (let ring = 0; ring < 3; ring++) {
           const phase = ((t * 0.0006 + ring * 0.33) % 1);
           const r = Math.round(13 + phase * 22);
@@ -101,7 +229,7 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
           }
         }
 
-        // Radiating 8-Bit Solar Rays (8 directional stepped beams)
+        // Radiating 8-Bit Solar Rays
         for (let ray = 0; ray < 8; ray++) {
           const rayAngle = (ray * Math.PI) / 4;
           const rayPulse = Math.sin(t * 0.004 + ray * 0.8);
@@ -127,16 +255,20 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
             const px = scx + gx * ps;
             const py = scy + gy * ps;
 
-            if (distSq <= 12) {
-              ctx.fillStyle = "#ffffff";
-            } else if (distSq <= 32) {
-              ctx.fillStyle = "#fef08a";
-            } else if (distSq <= 65) {
-              ctx.fillStyle = "#facc15";
-            } else if (distSq <= 95) {
-              ctx.fillStyle = "#f59e0b";
+            if (overcast) {
+              // Muted, softer palette when veiled by clouds
+              if (distSq <= 12) ctx.fillStyle = "#fef9c3";
+              else if (distSq <= 32) ctx.fillStyle = "#fef08a";
+              else if (distSq <= 65) ctx.fillStyle = "#facc15";
+              else if (distSq <= 95) ctx.fillStyle = "#eab308";
+              else ctx.fillStyle = "#ca8a04";
             } else {
-              ctx.fillStyle = "#d97706";
+              // Bright radiant clear palette
+              if (distSq <= 12) ctx.fillStyle = "#ffffff";
+              else if (distSq <= 32) ctx.fillStyle = "#fef08a";
+              else if (distSq <= 65) ctx.fillStyle = "#facc15";
+              else if (distSq <= 95) ctx.fillStyle = "#f59e0b";
+              else ctx.fillStyle = "#d97706";
             }
             ctx.fillRect(px, py, ps, ps);
           }
@@ -189,23 +321,299 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
       }
     };
 
-    // Main RAF animation loop
+    // =========================================================================
+    // 3. STEPPED PIXEL CLOUD ENGINE (Voxel Atmosphere)
+    // =========================================================================
+    const drawPixelClouds = (
+      cl: PixelCloud[],
+      w: number,
+      dt: number,
+      count: number,
+      palette: "day" | "storm" | "night" | "snow",
+      opacityMultiplier = 1
+    ) => {
+      ctx.save();
+      ctx.globalAlpha = opacityMultiplier;
+
+      let topColor = "#ffffff";
+      let bodyColor = "#e2e8f0";
+      let shadowColor = "#94a3b8";
+
+      if (palette === "storm") {
+        topColor = "#64748b";
+        bodyColor = "#334155";
+        shadowColor = "#1e293b";
+      } else if (palette === "night") {
+        topColor = "rgba(148, 163, 184, 0.75)";
+        bodyColor = "rgba(30, 41, 59, 0.8)";
+        shadowColor = "rgba(15, 23, 42, 0.9)";
+      } else if (palette === "snow") {
+        topColor = "#f8fafc";
+        bodyColor = "#cbd5e1";
+        shadowColor = "#94a3b8";
+      }
+
+      const activeClouds = cl.slice(0, count);
+
+      for (const c of activeClouds) {
+        c.x += c.speed * dt;
+        if (c.x > w + 80) {
+          c.x = -c.width - 60;
+        }
+
+        const cx = Math.round(c.x);
+        const cy = Math.round(c.y);
+
+        for (const p of c.puffs) {
+          const px = cx + Math.round(p.rx * c.width);
+          const py = cy + p.ry;
+          const pw = Math.round(p.rw * c.width);
+          const ph = p.rh;
+
+          // Shadow base
+          ctx.fillStyle = shadowColor;
+          ctx.fillRect(px, py, pw, ph);
+
+          // Main body
+          if (ph > 5) {
+            ctx.fillStyle = bodyColor;
+            ctx.fillRect(px, py, pw, ph - 5);
+          }
+
+          // Top highlight rim
+          ctx.fillStyle = topColor;
+          ctx.fillRect(px + 2, py, pw - 4, 3);
+
+          // Stepped corner cuts for 16-bit rounded voxel aesthetic
+          ctx.clearRect(px, py, 2, 2);
+          ctx.clearRect(px + pw - 2, py, 2, 2);
+          ctx.clearRect(px, py + ph - 2, 2, 2);
+          ctx.clearRect(px + pw - 2, py + ph - 2, 2, 2);
+        }
+      }
+
+      ctx.restore();
+    };
+
+    // =========================================================================
+    // 4. STEPPED LIGHTNING GENERATOR
+    // =========================================================================
+    const generateLightning = (w: number, h: number) => {
+      lightningBolt = [];
+      let lx = Math.round(w * 0.3 + Math.random() * (w * 0.4));
+      let ly = 30;
+      lightningBolt.push({ x: lx, y: ly });
+
+      while (ly < h * 0.75) {
+        ly += 12 + Math.floor(Math.random() * 16);
+        lx += (Math.random() - 0.5) * 36;
+        lightningBolt.push({ x: lx, y: ly });
+      }
+    };
+
+    // =========================================================================
+    // MAIN RAF ANIMATION LOOP
+    // =========================================================================
     const draw = (time: number) => {
       frame = requestAnimationFrame(draw);
       if (!visible) return;
+
+      const dt = Math.min((time - (previousTime || time)) / 1000, 0.05);
+      previousTime = time;
 
       ctx.clearRect(0, 0, width, height);
       const calm = reducedMotion || minimal;
       const isMobile = width < 768;
 
-      // Position in the upper-right sky of the page
+      // Celestial coordinates (upper-right sky of the page)
       const celestialX = isMobile ? Math.round(width * 0.82) : Math.round(width * 0.85);
       const celestialY = isMobile ? Math.round(height * 0.16) : Math.round(height * 0.17);
 
-      if (night) {
+      const wind = (active.windSpeed ?? 4) * 0.04;
+
+      // -----------------------------------------------------------------------
+      // LAYER 1: BACK LAYER (STARS & CELESTIAL BODIES)
+      // -----------------------------------------------------------------------
+      if (isNight) {
+        // Draw Twinkling 4-Point Cross Pixel Stars
+        for (const st of stars) {
+          const pulse = 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(st.phase + time * 0.003));
+          const sx = Math.round(st.x);
+          const sy = Math.round(st.y);
+
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(sx - 1, sy - 1, 2, 2);
+
+          ctx.fillStyle = `rgba(186, 230, 253, ${pulse})`;
+          ctx.fillRect(sx - st.armLen, sy, st.armLen, 1);
+          ctx.fillRect(sx + 1, sy, st.armLen, 1);
+          ctx.fillRect(sx, sy - st.armLen, 1, st.armLen);
+          ctx.fillRect(sx, sy + 1, 1, st.armLen);
+        }
+
+        // Shooting Star
+        shootingStarTimer += dt;
+        if (shootingStarTimer > 12) {
+          shootingStarActive = true;
+          shootingStarTimer = 0;
+          shootingStarX = Math.random() * (width * 0.7);
+          shootingStarY = Math.random() * (height * 0.25);
+          shootingStarProgress = 0;
+        }
+        if (shootingStarActive) {
+          shootingStarProgress += dt * 3.5;
+          if (shootingStarProgress > 1) {
+            shootingStarActive = false;
+          } else {
+            const curX = shootingStarX + shootingStarProgress * 180;
+            const curY = shootingStarY + shootingStarProgress * 90;
+            const alpha = Math.sin(shootingStarProgress * Math.PI);
+            ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+            ctx.fillRect(Math.round(curX), Math.round(curY), 3, 2);
+            ctx.fillStyle = `rgba(186, 230, 253, ${alpha * 0.6})`;
+            ctx.fillRect(Math.round(curX - 8), Math.round(curY - 4), 8, 2);
+          }
+        }
+
+        // Draw Moon
         drawPixelMoon(celestialX, celestialY);
       } else {
-        drawPixelSun(celestialX, celestialY, time, calm);
+        // Draw Sun (full radiance in sunny; soft diffuse disc in cloudy/rain/fog)
+        drawPixelSun(celestialX, celestialY, time, calm, isCloudy || isRain || isFog || isSnow);
+      }
+
+      // -----------------------------------------------------------------------
+      // LAYER 2: STEPPED PIXEL CLOUDS
+      // -----------------------------------------------------------------------
+      if (isCloudy) {
+        // Full rich cloud cover (7 fluffy multi-tiered clouds drifting across)
+        drawPixelClouds(clouds, width, dt, 7, isNight ? "night" : "day", 1.0);
+      } else if (isRain) {
+        // Dark moody storm clouds
+        drawPixelClouds(clouds, width, dt, 5, "storm", 1.0);
+      } else if (isSnow) {
+        // Soft winter snow clouds
+        drawPixelClouds(clouds, width, dt, 5, "snow", 0.95);
+      } else if (isSunny) {
+        // Subtle, high, sparse wisps
+        drawPixelClouds(clouds, width, dt, 2, "day", 0.35);
+      } else if (isNight) {
+        // Light midnight clouds
+        drawPixelClouds(clouds, width, dt, 2, "night", 0.25);
+      }
+
+      // -----------------------------------------------------------------------
+      // LAYER 3: PRECIPITATION & PARTICLES
+      // -----------------------------------------------------------------------
+      if (isRain && !calm) {
+        const windOffset = -35 + wind * 25;
+        for (const r of raindrops) {
+          r.y += r.vy * dt;
+          r.x += windOffset * dt;
+          if (r.y > height) {
+            if (splashes.length < 35 && Math.random() > 0.45) {
+              splashes.push({
+                x: r.x,
+                y: height - 10 + Math.random() * 8,
+                vx: (Math.random() - 0.5) * 70,
+                vy: -50 - Math.random() * 70,
+                alpha: 0.8,
+              });
+            }
+            r.y = -r.len - 10;
+            r.x = Math.random() * (width + 120) - 60;
+          }
+          // Stepped 2px vertical rain streak
+          ctx.fillStyle = `rgba(186, 230, 253, ${r.alpha})`;
+          ctx.fillRect(Math.round(r.x), Math.round(r.y), 2, r.len);
+        }
+
+        // Splashes
+        for (let sIdx = splashes.length - 1; sIdx >= 0; sIdx--) {
+          const s = splashes[sIdx];
+          s.x += s.vx * dt;
+          s.y += s.vy * dt;
+          s.vy += 320 * dt;
+          s.alpha -= 2.4 * dt;
+          if (s.alpha <= 0) {
+            splashes.splice(sIdx, 1);
+            continue;
+          }
+          ctx.fillStyle = `rgba(224, 242, 254, ${s.alpha})`;
+          ctx.fillRect(Math.round(s.x), Math.round(s.y), 2, 2);
+        }
+
+        // Thunderstorm lightning bolt & sky illumination
+        if (condition === "thunderstorm") {
+          lightningTimer += dt;
+          if (lightningTimer > 6.0) {
+            lightningActive = 0.12;
+            lightningTimer = 0;
+            generateLightning(width, height);
+          }
+          if (lightningActive > 0) {
+            lightningActive -= dt;
+            ctx.fillStyle = "rgba(240, 249, 255, 0.15)";
+            ctx.fillRect(0, 0, width, height);
+
+            if (lightningBolt.length > 1) {
+              ctx.fillStyle = "#ffffff";
+              for (let i = 0; i < lightningBolt.length - 1; i++) {
+                const p1 = lightningBolt[i];
+                const p2 = lightningBolt[i + 1];
+                ctx.fillRect(Math.round(p1.x), Math.round(p1.y), 3, 3);
+                const midX = (p1.x + p2.x) / 2;
+                const midY = (p1.y + p2.y) / 2;
+                ctx.fillRect(Math.round(midX), Math.round(midY), 2, 2);
+              }
+            }
+          }
+        }
+      }
+
+      if (isSnow && !calm) {
+        for (const s of snowflakes) {
+          s.y += s.vy * dt;
+          s.x += Math.sin(s.phase + time * 0.0016) * 16 * dt;
+          if (s.y > height + 8) {
+            s.y = -8;
+            s.x = Math.random() * width;
+          }
+          const sx = Math.round(s.x);
+          const sy = Math.round(s.y);
+
+          if (s.size === 3) {
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(sx - 1, sy - 1, 2, 2);
+            ctx.fillStyle = "#e0f2fe";
+            ctx.fillRect(sx - 2, sy, 4, 1);
+            ctx.fillRect(sx, sy - 2, 1, 4);
+          } else {
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(sx, sy, 2, 2);
+          }
+        }
+      }
+
+      // -----------------------------------------------------------------------
+      // LAYER 4: MIST / FOG BANDS
+      // -----------------------------------------------------------------------
+      if (isFog && !calm) {
+        mistOffset += 12 * dt;
+        const bands = [
+          { y: height * 0.22, h: 36, speed: 1.0, alpha: 0.12 },
+          { y: height * 0.44, h: 48, speed: 0.7, alpha: 0.10 },
+          { y: height * 0.66, h: 54, speed: 1.2, alpha: 0.14 },
+          { y: height * 0.88, h: 40, speed: 0.9, alpha: 0.15 },
+        ];
+        for (const b of bands) {
+          const shift = (mistOffset * b.speed) % (width + 240);
+          ctx.fillStyle = `rgba(203, 213, 225, ${b.alpha})`;
+          for (let x = -240 + shift; x < width + 120; x += 70) {
+            const wave = Math.sin((x + mistOffset) * 0.006) * 6;
+            ctx.fillRect(Math.round(x), Math.round(b.y + wave), 60, b.h);
+          }
+        }
       }
     };
 
@@ -218,13 +626,13 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
       window.removeEventListener("resize", resize);
       document.removeEventListener("visibilitychange", visibility);
     };
-  }, [minimal, reducedMotion, night]);
+  }, [minimal, reducedMotion, condition, isNight, isRain, isSnow, isFog, isCloudy, isSunny, active.windSpeed]);
 
   return (
     <div
       ref={wrapRef}
       aria-hidden="false"
-      className={`weather-layer weather-${condition}${night ? " is-night" : ""}${minimal ? " is-minimal" : ""}${isDialogueOpen ? " has-dialogue-open" : ""}`}
+      className={`weather-layer weather-${condition}${isNight ? " is-night" : ""}${minimal ? " is-minimal" : ""}${isDialogueOpen ? " has-dialogue-open" : ""}`}
     >
       <canvas ref={canvasRef} aria-hidden="true" className="weather-canvas" />
 
@@ -233,11 +641,11 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
         <button
           type="button"
           className="celestial-hitbox"
-          aria-label={night ? "Pixel Moon. Press to view core stack & biography." : "Pixel Sun. Press to view core stack & biography."}
+          aria-label={isNight ? "Pixel Moon. Press to view core stack & biography." : "Pixel Sun. Press to view core stack & biography."}
           aria-expanded={isDialogueOpen}
           onClick={() => setIsDialogueOpen((prev) => !prev)}
         >
-          <span className="sr-only">{night ? "Toggle Lunar Profile" : "Toggle Solar Profile"}</span>
+          <span className="sr-only">{isNight ? "Toggle Lunar Profile" : "Toggle Solar Profile"}</span>
         </button>
 
         {/* Retro Pixel Dialogue Popup - Appears only when pressed */}
@@ -254,7 +662,7 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
             <div className="celestial-dialogue-card" role="dialog" aria-label="Technical Profile">
             <div className="dialogue-header">
               <span className="dialogue-badge">
-                {night ? "🌙 LUNAR SYSTEM" : "☀️ SOLAR SYSTEM"}
+                {isNight ? "🌙 LUNAR SYSTEM" : "☀️ SOLAR SYSTEM"}
               </span>
               <button
                 type="button"
@@ -272,7 +680,7 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
             <div className="dialogue-body">
               <strong className="dialogue-name">PIYUSH SHUKLA</strong>
               <p className="dialogue-role">
-                {night
+                {isNight
                   ? "Systems & Low-Level Architecture · Night Owl Mode"
                   : "Robotics & Artificial Intelligence Undergrad · Systems, AI & Games"}
               </p>
@@ -280,7 +688,7 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
               <div className="dialogue-stack-wrap">
                 <span className="dialogue-stack-heading">CORE TECHNICAL STACK:</span>
                 <div className="dialogue-stack-chips">
-                  {(night
+                  {(isNight
                     ? ["C", "C++", "Python", "Java", "Kotlin", "Android Dev", "Rust", "Robotics & AI"]
                     : ["C", "C++", "Python", "Java", "Kotlin", "Android Dev", "JavaScript", "React", "Node.js", "SQL"]
                   ).map((skill) => (
