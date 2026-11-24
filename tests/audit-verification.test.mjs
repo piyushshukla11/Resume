@@ -286,4 +286,23 @@ test("stack: highlights all core technologies with green primary box except unit
   for (const skill of highlighted) {
     assert.equal(isStackPrimary(skill), true, `Expected ${skill} to be highlighted with green box`);
   }
+
+  // Verify that in all stack groups, uncolored items are strictly at the end of the list
+  const testStacks = [
+    { label: "SYSTEMS & CORE", items: ["C", "Python", "Java", "Kotlin", "Android dev", "C++"] },
+    { label: "GAME DEV & 3D", items: ["C#", "Unity", "Blender"] },
+    { label: "WEB, DATA & AI", items: ["JavaScript", "React", "Node.js", "Gemini API", "CesiumJS", "SQL"] },
+  ];
+
+  for (const group of testStacks) {
+    let seenUncolored = false;
+    for (const item of group.items) {
+      const isPrimary = isStackPrimary(item);
+      if (!isPrimary) {
+        seenUncolored = true;
+      } else {
+        assert.ok(!seenUncolored, `In group "${group.label}", primary item "${item}" appears after an uncolored item`);
+      }
+    }
+  }
 });

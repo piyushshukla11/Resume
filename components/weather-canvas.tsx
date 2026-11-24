@@ -653,8 +653,8 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
                 <span className="dialogue-stack-heading">CORE TECHNICAL STACK:</span>
                 <div className="dialogue-stack-chips">
                   {(isNight
-                    ? ["C", "C++", "Python", "Java", "Kotlin", "Android Dev", "Rust", "Robotics & AI"]
-                    : ["C", "C++", "Python", "Java", "Kotlin", "Android Dev", "JavaScript", "React", "Node.js", "SQL"]
+                    ? ["C", "Python", "Java", "Kotlin", "Android Dev", "Rust", "Robotics & AI", "C++"]
+                    : ["C", "Python", "Java", "Kotlin", "Android Dev", "JavaScript", "React", "Node.js", "C++", "SQL"]
                   ).map((skill) => (
                     <span key={skill} className="dialogue-stack-chip">
                       {skill}

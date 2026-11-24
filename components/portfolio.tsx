@@ -19,9 +19,9 @@ const modes: { id: WeatherMode; label: string }[] = [
   { id: "clear-night", label: "Clear night" }, { id: "cloudy", label: "Cloud cover" }, { id: "snow", label: "Snow" }, { id: "mist", label: "Mist" },
 ];
 const stacks = [
-  { label: "SYSTEMS & CORE", items: ["C", "C++", "Python", "Java", "Kotlin", "Android dev"] },
+  { label: "SYSTEMS & CORE", items: ["C", "Python", "Java", "Kotlin", "Android dev", "C++"] },
   { label: "GAME DEV & 3D", items: ["C#", "Unity", "Blender"] },
-  { label: "WEB, DATA & AI", items: ["JavaScript", "React", "Node.js", "SQL", "Gemini API", "CesiumJS"] },
+  { label: "WEB, DATA & AI", items: ["JavaScript", "React", "Node.js", "Gemini API", "CesiumJS", "SQL"] },
 ];
 const isStackPrimary = (item: string) =>
   !["unity", "c++", "blender", "sql"].includes(item.toLowerCase());
@@ -193,7 +193,35 @@ export function Portfolio() {
 
       <section id="stack" className="section-wrap stack-section section-anchor" aria-labelledby="stack-title">
         <div className="section-heading"><div><p className="eyebrow">02 ❖ TOOLING & CRAFT</p><h2 id="stack-title">A practical toolkit<span>.</span></h2></div><p className="section-aside">The tools change. The instinct to understand<br />the system stays.</p></div>
-        <div className="stack-matrix">{stacks.map((group, groupIndex) => <article className="stack-group" key={group.label}><div className="stack-group-head"><span className="stack-number">0{groupIndex + 1}</span><h3>{group.label}</h3></div><div className="stack-items">{group.items.map((item) => <span key={item} className={isStackPrimary(item) ? "stack-primary" : ""}>{item}</span>)}</div></article>)}</div>
+        <div className="stack-matrix">
+          {stacks.map((group, groupIndex) => {
+            const sortedItems = [...group.items].sort((a, b) => {
+              const aPrimary = isStackPrimary(a);
+              const bPrimary = isStackPrimary(b);
+              if (aPrimary && !bPrimary) return -1;
+              if (!aPrimary && bPrimary) return 1;
+              return 0;
+            });
+            return (
+              <article className="stack-group" key={group.label}>
+                <div className="stack-group-head">
+                  <span className="stack-number">0{groupIndex + 1}</span>
+                  <h3>{group.label}</h3>
+                </div>
+                <div className="stack-items">
+                  {sortedItems.map((item) => (
+                    <span
+                      key={item}
+                      className={isStackPrimary(item) ? "stack-primary" : ""}
+                    >
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              </article>
+            );
+          })}
+        </div>
       </section>
 
       <section id="competitive" className="section-wrap competitive-section section-anchor" aria-labelledby="competitive-title">
