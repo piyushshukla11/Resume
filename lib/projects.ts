@@ -21,27 +21,28 @@ export type PortfolioProject = {
 
 export const featuredProjects: PortfolioProject[] = [
   {
-    id: "polyexecution-studio",
-    title: "PolyExecution Studio",
-    subtitle: "A safer place to run untrusted code at low latency",
+    id: "polyexecution-studio2",
+    title: "PolyExecution Studio 2 (PES 2)",
+    subtitle: "Zero-trust kernel sandbox supporting 27 LeetCode runtime environments",
     category: "systems",
-    tags: ["C", "Linux", "Kotlin", "Java", "JavaScript", "Namespaces", "seccomp"],
-    summary: "A multi-language code execution engine and Linux sandbox designed for tight resource isolation, minimal overhead, and strict kernel-level containment.",
-    problemStatement: "Running untrusted student or competitive code in modern web platforms traditionally relies on heavy Docker containers, adding hundreds of milliseconds of startup overhead per execution and consuming gigabytes of daemon RAM.",
+    tags: ["C", "Linux cgroups v2", "Namespaces", "seccomp-bpf", "Python", "gRPC", "27 Runtimes"],
+    summary: "A high-performance remote execution engine and browser studio engineered to safely evaluate 27 programming environments. Built with Linux cgroups v2, unprivileged user/mount/pid/net namespaces, strict seccomp-bpf filters, and typed runtime adapters.",
+    problemStatement: "Running untrusted student or competitive code in modern web platforms traditionally relies on heavy Docker containers, adding hundreds of milliseconds of startup overhead per execution and consuming gigabytes of daemon RAM while struggling to safely support diverse language families (JVM, .NET, BEAM VM, databases).",
     technicalDeepDive: [
       "Custom Linux native runner written in C leveraging clone(), unshare(CLONE_NEWPID | CLONE_NEWNET | CLONE_NEWNS), and pivot_root for sub-millisecond container creation.",
       "Strict resource bounding with setrlimit() for CPU time, file size, stack depth, and RLIMIT_NOFILE to prevent fork bombs and file descriptor leaks.",
       "Seccomp-BPF least-privilege filter profiles tailored per language, permitting sched_setaffinity(pid == 0) for runtimes like CoreCLR while default-denying socket() and elevated syscalls.",
-      "Control plane decoupled from the native worker via gRPC streams, handling lifecycle milestones from accepted, compiling, to running and result collection.",
+      "Control plane decoupled from the native worker via gRPC streams, handling lifecycle milestones from accepted, compiling, to running and result collection across 27 LeetCode environments.",
     ],
     challengesSolved: [
       "Eliminated container daemon latency, dropping process isolation startup from ~450ms (Docker) to <12ms native execution.",
+      "Engineered typed RuntimeAdapter abstractions for 27 LeetCode environments ranging from GCC/Clang and JVM to BEAM VM and disposable PostgreSQL.",
       "Prevented CoreCLR .NET 10 startup out-of-memory errors by tuning virtual memory limits and file size allowances for memfd JIT compilation buffers.",
       "Enforced zero cgroup leftovers through rigorous delegated cgroup v2 subtree cleanup on process completion.",
     ],
     metrics: [
       { label: "Worker Startup", value: "<12ms" },
-      { label: "Memory Isolation", value: "Cgroup v2" },
+      { label: "Environments", value: "27 LeetCode Runtimes" },
       { label: "Syscall Filtering", value: "Seccomp BPF" },
       { label: "Sandbox Security", value: "Net/PID/Mnt Namespaces" },
     ],
@@ -62,13 +63,13 @@ int enter_sandbox_containment(const sandbox_config_t *cfg) {
       "Process Bounding Layer: unshare(), pivot_root(), and private tmpfs mounts preventing host breakout.",
       "Seccomp-BPF Filter: Whitelisted syscall tables denying raw network sockets and privilege escalation.",
       "Cgroup v2 Subtrees: Precise hard caps on peak memory and CPU bandwidth with deterministic OOM handling.",
-      "Execution Control Plane: gRPC streaming worker architecture supporting concurrent isolation rings.",
+      "Execution Control Plane: gRPC streaming worker architecture supporting concurrent isolation rings across 27 language environments.",
     ],
     outcomes: [
       "Sub-millisecond process startup overhead compared to heavyweight OCI containers.",
-      "Safe multi-tenant untrusted execution runtime ready for high-frequency competitive programming and education platforms.",
+      "Safe multi-tenant untrusted execution runtime supporting 27 LeetCode programming languages for competitive platforms and coding education.",
     ],
-    githubUrl: "https://github.com/piyushshukla11/polyexecution-studio",
+    githubUrl: "https://github.com/piyushshukla11/polyexecution-studio2",
     featured: true,
   },
   {
@@ -458,7 +459,7 @@ export function computeUnifiedRating(cfRating: number, ccRating: number): number
 ];
 
 export function getProject(id: string): PortfolioProject | undefined {
-  return featuredProjects.find((p) => p.id === id);
+  return featuredProjects.find((p) => p.id === id || (id === "polyexecution-studio" && p.id === "polyexecution-studio2"));
 }
 
 export function getAllProjects(): PortfolioProject[] {
