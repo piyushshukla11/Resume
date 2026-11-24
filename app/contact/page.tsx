@@ -76,7 +76,7 @@ export default function ContactPage() {
           </div>
 
           <h1 className="bio-heading">
-            I make complex<br />systems feel <em>simple.</em>
+            I push<br />pixels until<br />they push<br /><em>back.</em>
           </h1>
 
           <div className="bio-description-body">
