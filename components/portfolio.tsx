@@ -96,7 +96,6 @@ export function Portfolio() {
           <h1 id="hero-title">I push pixels until<br />they push <em>back.</em></h1>
           <p className="hero-copy">I’m Piyush Shukla — a robotics and artificial intelligence undergrad drawn to the layers beneath the interface. I build execution systems, useful AI, and playful worlds.</p>
           <div className="hero-actions"><Link className="button button-primary" href="/work">Explore the index <ArrowRight size={15} /></Link><a className="button button-outline" href="https://github.com/piyushshukla11" target="_blank" rel="noreferrer"><Github size={15} /> GitHub <ArrowUpRight size={13} /></a></div>
-          <p className="hero-hint"><span className="hint-mark">❖</span> 8-bit weather engine active. Engineering index is available as a dedicated archive.</p>
         </div>
         <a className="scroll-cue" href="#work"><span /> SCROLL TO EXPLORE</a>
       </section>
@@ -192,16 +191,11 @@ export function Portfolio() {
             </Link>
           </div>
         </div>
-
-        <p className="weather-index-note">
-          <span className="node-mini" /> Interactive weather nodes are active in the sky. All systems are cataloged in the dedicated engineering index.
-        </p>
       </section>
 
       <section id="stack" className="section-wrap stack-section section-anchor" aria-labelledby="stack-title">
         <div className="section-heading"><div><p className="eyebrow">02 ❖ TOOLING & CRAFT</p><h2 id="stack-title">A practical toolkit<span>.</span></h2></div><p className="section-aside">The tools change. The instinct to understand<br />the system stays.</p></div>
         <div className="stack-matrix">{stacks.map((group, groupIndex) => <article className="stack-group" key={group.label}><div className="stack-group-head"><span className="stack-number">0{groupIndex + 1}</span><h3>{group.label}</h3></div><div className="stack-items">{group.items.map((item, index) => <span key={item} className={index === 0 ? "stack-primary" : ""}>{item}</span>)}</div></article>)}</div>
-        <div className="stack-footnote"><span>{mode === "clear-night" || weather?.atmosphere === "night" ? "MOON / CORE COMPETENCIES" : "SUN / CORE COMPETENCIES"}</span><span>SELECTED FROM THE CELESTIAL MATRIX</span></div>
       </section>
 
       <section id="competitive" className="section-wrap competitive-section section-anchor" aria-labelledby="competitive-title">
@@ -211,7 +205,6 @@ export function Portfolio() {
           <a className="profile-card" href={codechefUsername ? "https://www.codechef.com/users/" + encodeURIComponent(codechefUsername) : "https://www.codechef.com"} target="_blank" rel="noreferrer"><span className="profile-mark profile-mark-alt">CC</span><span className="profile-body"><span className="eyebrow">CONTEST PRACTICE</span><strong>CodeChef</strong><small>{codechefUsername ? "Complexity · data structures · optimization" : "Set NEXT_PUBLIC_CODECHEF_USERNAME to link your profile"}</small></span><ArrowUpRight size={16} /></a>
           <div className="principle-card"><span className="eyebrow">WORKING PRINCIPLE</span><p>“Make the invariant visible. Let the code explain the rest.”</p><span className="principle-signature">P / ENGINEERING NOTES</span></div>
         </div>
-        <p className="data-note">Competition scores are omitted until profile handles or a verified stats feed are configured.</p>
       </section>
 
       <section id="experience" className="section-wrap experience-section section-anchor" aria-labelledby="experience-title">
