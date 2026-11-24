@@ -3138,6 +3138,24 @@ main textarea,
   box-shadow: 0 3px 0 #031e36;
 }
 
+.channel-extra-link-row {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.channel-mailto-fallback {
+  color: #64748b;
+  font: 8px var(--font-pixel-heading);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: color 0.15s ease;
+}
+
+.channel-mailto-fallback:hover {
+  color: #94a3b8;
+  text-decoration: underline;
+}
+
 /* Direct Message Composer */
 .contact-message-section {
   padding: 36px 40px;

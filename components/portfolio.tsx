@@ -41,7 +41,7 @@ export function Portfolio() {
   const [adminOpen, setAdminOpen] = useState(false);
   const [curated, setCurated] = useState<PortfolioProject[]>([]);
   const [mobileMenu, setMobileMenu] = useState(false);
-  const email = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "piyushsukla775314@gmail.com";
+  const email = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "piyushshukla775314@gmail.com";
   const leetcodeUsername = process.env.NEXT_PUBLIC_LEETCODE_USERNAME || "zogratis_775314";
   const projects = useMemo(() => [...featuredProjects, ...curated], [curated]);
   const highlightProjects = useMemo(() => {
@@ -283,7 +283,7 @@ export function Portfolio() {
 
       <section id="contact" className="section-wrap contact-section section-anchor" aria-labelledby="contact-title">
         <div className="contact-orbit" aria-hidden="true"><span /><span /><span /></div>
-        <div className="contact-content"><p className="eyebrow">05 ❖ OPEN CHANNEL</p><h2 id="contact-title">Let’s make<br /><em>something matter.</em></h2><p>For systems engineering, game development, internships, or a curious technical conversation.</p><div className="contact-actions">{email ? <a className="button button-primary" href={`mailto:${email}`}>Start a conversation <ArrowUpRight size={15} /></a> : <a className="button button-primary" href="https://github.com/piyushshukla11" target="_blank" rel="noreferrer">Reach out on GitHub <ArrowUpRight size={15} /></a>}<a className="button button-outline" href="https://www.linkedin.com/in/piyush-shukla-dev" target="_blank" rel="noreferrer"><Linkedin size={15} /> LinkedIn</a><Link className="button button-outline" href="/contact">View Profile & Contact Page <ArrowRight size={14} /></Link></div></div>
+        <div className="contact-content"><p className="eyebrow">05 ❖ OPEN CHANNEL</p><h2 id="contact-title">Let’s make<br /><em>something matter.</em></h2><p>For systems engineering, game development, internships, or a curious technical conversation.</p><div className="contact-actions">{email ? <a className="button button-primary" href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}`} target="_blank" rel="noreferrer">Start a conversation <ArrowUpRight size={15} /></a> : <a className="button button-primary" href="https://github.com/piyushshukla11" target="_blank" rel="noreferrer">Reach out on GitHub <ArrowUpRight size={15} /></a>}<a className="button button-outline" href="https://www.linkedin.com/in/piyush-shukla-dev" target="_blank" rel="noreferrer"><Linkedin size={15} /> LinkedIn</a><Link className="button button-outline" href="/contact">View Profile & Contact Page <ArrowRight size={14} /></Link></div></div>
       </section>
     </main>
 

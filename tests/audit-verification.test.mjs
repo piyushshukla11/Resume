@@ -341,3 +341,14 @@ test("pixel-intro: component and layout integration", async () => {
   assert.ok(introSrc.includes("clearRect"), "Must use clearRect for block-by-block pixel dissolve");
   assert.ok(cssSrc.includes(".pixel-intro-overlay"), "globals.css must define .pixel-intro-overlay");
 });
+
+test("email: contact address is piyushshukla775314@gmail.com with live compose action", async () => {
+  const fs = await import("node:fs");
+  const portfolioSrc = fs.readFileSync("components/portfolio.tsx", "utf8");
+  const contactSrc = fs.readFileSync("app/contact/page.tsx", "utf8");
+
+  assert.ok(portfolioSrc.includes("piyushshukla775314@gmail.com"), "Portfolio must fallback to piyushshukla775314@gmail.com");
+  assert.ok(contactSrc.includes("piyushshukla775314@gmail.com"), "Contact page must use piyushshukla775314@gmail.com");
+  assert.ok(contactSrc.includes("mail.google.com/mail/?view=cm"), "Contact page must link to web compose");
+  assert.ok(portfolioSrc.includes("mail.google.com/mail/?view=cm"), "Portfolio start conversation must link to web compose");
+});
