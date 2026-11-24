@@ -93,7 +93,6 @@ export function Portfolio() {
   }, [weather]);
 
   return <div className={`site-shell ${weatherClass}${minimal ? " focus-mode" : ""}`}>
-    <WeatherCanvas onProjectSelect={(target) => router.push(target === "work" ? "/work" : `/projects/${target}`)} />
     <header className="hud-header">
       <a className="brand-lockup" href="#top" aria-label="ME, return to top"><span className="wordmark">ME<span>.</span></span><span className="brand-caption">PIYUSH SHUKLA / PORTFOLIO</span></a>
       <button className="mobile-menu-button" aria-label={mobileMenu ? "Close navigation" : "Open navigation"} onClick={() => setMobileMenu((value) => !value)}>{mobileMenu ? <X size={18} /> : <Menu size={18} />}</button>
@@ -138,6 +137,9 @@ export function Portfolio() {
           <p className="hero-copy">I’m Piyush Shukla — a computer science undergrad drawn to the layers beneath the interface. I build execution systems, useful AI, and playful worlds.</p>
           <div className="hero-actions"><Link className="button button-primary" href="/work">Explore the index <ArrowRight size={15} /></Link><a className="button button-outline" href="https://github.com/piyushshukla11" target="_blank" rel="noreferrer"><Github size={15} /> GitHub <ArrowUpRight size={13} /></a></div>
           <p className="hero-hint"><span className="hint-mark">❖</span> 8-bit weather engine active. Engineering index is available as a dedicated archive.</p>
+        </div>
+        <div className="hero-celestial-stage" aria-label="Celestial solar system">
+          <WeatherCanvas onProjectSelect={(target) => router.push(target === "work" ? "/work" : `/projects/${target}`)} />
         </div>
         <a className="scroll-cue" href="#work"><span /> SCROLL TO EXPLORE</a>
       </section>

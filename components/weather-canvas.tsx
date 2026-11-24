@@ -30,15 +30,16 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
     const ctx = canvas?.getContext("2d", { alpha: true });
     if (!canvas || !wrapper || !ctx) return;
 
-    let width = window.innerWidth;
-    let height = window.innerHeight;
+    let width = wrapper.clientWidth || 380;
+    let height = wrapper.clientHeight || 380;
     let dpr = Math.min(window.devicePixelRatio || 1, 2);
     let frame = 0;
     let visible = true;
 
     const resize = () => {
-      width = window.innerWidth;
-      height = window.innerHeight;
+      if (!canvas || !wrapper) return;
+      width = wrapper.clientWidth || 380;
+      height = wrapper.clientHeight || 380;
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = Math.floor(width * dpr);
       canvas.height = Math.floor(height * dpr);
@@ -55,7 +56,12 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
       visible = entry.isIntersecting && document.visibilityState === "visible";
     });
 
+    const resizeObserver = new ResizeObserver(() => {
+      resize();
+    });
+
     observer.observe(wrapper);
+    resizeObserver.observe(wrapper);
     window.addEventListener("resize", resize, { passive: true });
     document.addEventListener("visibilitychange", visibility);
     resize();
@@ -64,7 +70,7 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
     // 1. RADIANT 16-BIT PIXEL SUN ENGINE
     // =========================================================================
     const drawPixelSun = (scx: number, scy: number, t: number, isCalm: boolean) => {
-      const isMobile = width < 768;
+      const isMobile = width < 340;
       const ps = isMobile ? 3 : 4;
       const radiusBlocks = 11;
 
@@ -142,7 +148,7 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
     // 2. RADIANT 16-BIT PIXEL MOON ENGINE
     // =========================================================================
     const drawPixelMoon = (mcx: number, mcy: number) => {
-      const isMobile = width < 768;
+      const isMobile = width < 340;
       const ps = isMobile ? 3 : 4;
       const radiusBlocks = 9;
 
@@ -190,10 +196,9 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
 
       ctx.clearRect(0, 0, width, height);
       const calm = reducedMotion || minimal;
-      const isMobile = width < 768;
 
-      const celestialX = isMobile ? Math.round(width * 0.78) : Math.round(width * 0.82);
-      const celestialY = isMobile ? Math.round(height * 0.22) : Math.round(height * 0.26);
+      const celestialX = Math.round(width / 2);
+      const celestialY = Math.round(height / 2);
 
       if (night) {
         drawPixelMoon(celestialX, celestialY);
@@ -207,6 +212,7 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
     return () => {
       cancelAnimationFrame(frame);
       observer.disconnect();
+      resizeObserver.disconnect();
       window.removeEventListener("resize", resize);
       document.removeEventListener("visibilitychange", visibility);
     };
