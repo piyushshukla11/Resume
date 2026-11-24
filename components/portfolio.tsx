@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowDownToLine, ArrowRight, ArrowUpRight, Cloud, Command, Github, Linkedin, LocateFixed, Menu, X } from "lucide-react";
+import { ArrowDownToLine, ArrowRight, ArrowUpRight, Cloud, Command, Github, Linkedin, Menu, X } from "lucide-react";
 import { useWeather } from "@/components/weather-provider";
 import { WeatherCanvas } from "@/components/weather-canvas";
 import { ProjectDrawer } from "@/components/project-drawer";
@@ -30,25 +30,14 @@ const milestones = [
   { date: "ONGOING", title: "Hardware & IoT experiments", detail: "Prototyping at the edge of software and physical systems", mark: "05" },
 ];
 
-function Clock({ timezone }: { timezone?: string }) {
-  const [time, setTime] = useState("--:--");
-  useEffect(() => {
-    const update = () => setTime(new Intl.DateTimeFormat("en-IN", { timeZone: timezone || "Asia/Kolkata", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date()));
-    update(); const timer = window.setInterval(update, 15_000); return () => window.clearInterval(timer);
-  }, [timezone]);
-  return <time className="live-clock">{time}</time>;
-}
-
 export function Portfolio() {
   const router = useRouter();
-  const { weather, mode, setMode, minimal, setMinimal, refreshLocation, setLocation, error } = useWeather();
+  const { weather, mode, setMode, minimal, setMinimal, error } = useWeather();
   const [projectId, setProjectId] = useState<string | null>(null);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [adminOpen, setAdminOpen] = useState(false);
   const [curated, setCurated] = useState<PortfolioProject[]>([]);
   const [mobileMenu, setMobileMenu] = useState(false);
-  const [manualLatitude, setManualLatitude] = useState("12.9716");
-  const [manualLongitude, setManualLongitude] = useState("77.5946");
   const email = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "piyushsukla775314@gmail.com";
   const leetcodeUsername = process.env.NEXT_PUBLIC_LEETCODE_USERNAME;
   const codechefUsername = process.env.NEXT_PUBLIC_CODECHEF_USERNAME;
@@ -72,25 +61,12 @@ export function Portfolio() {
     return () => window.removeEventListener("keydown", keys);
   }, []);
 
-  const conditionLabel = mode !== "auto" ? modes.find((item) => item.id === mode)?.label : weather?.condition?.replaceAll("-", " ") || "Finding weather";
-  const location = weather?.location || "Bengaluru";
   const condition = weather?.condition ?? "clear";
   const night = weather?.atmosphere === "night" || mode === "clear-night";
   const isRain = condition === "rain" || condition === "thunderstorm" || mode === "rain";
   const isSnow = condition === "snow" || mode === "snow";
   const isSunny = (condition === "clear" || mode === "clear-day") && !night && !isRain && !isSnow;
   const weatherClass = isRain ? "weather-rain" : isSunny ? "weather-sunny" : night ? "weather-night" : isSnow ? "weather-snow" : "weather-cloudy";
-
-  useEffect(() => {
-    if (weather) {
-      const lat = String(weather.latitude);
-      const lon = String(weather.longitude);
-      queueMicrotask(() => {
-        setManualLatitude(lat);
-        setManualLongitude(lon);
-      });
-    }
-  }, [weather]);
 
   return <div className={`site-shell ${weatherClass}${minimal ? " focus-mode" : ""}`}>
     <WeatherCanvas onProjectSelect={(target) => router.push(target === "work" ? "/work" : `/projects/${target}`)} />
@@ -111,29 +87,12 @@ export function Portfolio() {
       </div>
     </header>
 
-    <div className="environment-pill" role="status">
-      <span className="status-light" />
-      <span>{location} · {weather ? `${Math.round(weather.temperature)}°C` : "—"} · {conditionLabel}</span>
-      <Clock timezone={weather?.timezone} />
-      <details className="location-override">
-        <summary aria-label="Choose a manual location" title="Choose a manual location"><LocateFixed size={13} /></summary>
-        <div className="location-popover">
-          <span className="eyebrow">LOCATION PREVIEW</span>
-          <form onSubmit={(event) => { event.preventDefault(); setLocation(Number(manualLatitude), Number(manualLongitude)); }}>
-            <label>Latitude<input type="number" min="-90" max="90" step="any" value={manualLatitude} onChange={(event) => setManualLatitude(event.target.value)} required /></label>
-            <label>Longitude<input type="number" min="-180" max="180" step="any" value={manualLongitude} onChange={(event) => setManualLongitude(event.target.value)} required /></label>
-            <button className="button button-primary" type="submit">Preview location</button>
-          </form>
-          <button className="location-reset" type="button" onClick={refreshLocation}>Use my current location</button>
-        </div>
-      </details>
-    </div>
     {error && <span className="weather-error" role="status">{error}</span>}
 
     <main id="top">
       <section className="hero section-wrap" aria-labelledby="hero-title">
         <div className="hero-content">
-          <p className="eyebrow hero-eyebrow"><span className="status-light" /> ❖ BUILDING SYSTEMS THAT HOLD UP ❖</p>
+          <p className="eyebrow hero-eyebrow"><span className="status-light" /> ❖ KEEP ON BUILDING ❖</p>
           <h1 id="hero-title">I make complex<br />systems feel <em>simple.</em></h1>
           <p className="hero-copy">I’m Piyush Shukla — a robotics and artificial intelligence undergrad drawn to the layers beneath the interface. I build execution systems, useful AI, and playful worlds.</p>
           <div className="hero-actions"><Link className="button button-primary" href="/work">Explore the index <ArrowRight size={15} /></Link><a className="button button-outline" href="https://github.com/piyushshukla11" target="_blank" rel="noreferrer"><Github size={15} /> GitHub <ArrowUpRight size={13} /></a></div>
