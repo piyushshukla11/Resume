@@ -202,12 +202,12 @@ export default function ContactPage() {
               <span className="channel-tag">ALGORITHMS & SPEED</span>
             </div>
             <strong className="channel-title">Competitive Profile</strong>
-            <p className="channel-handle">LeetCode (@piyushshukla11)</p>
+            <p className="channel-handle">LeetCode (@zogratis_775314)</p>
             <p className="channel-copy">
               Data structures, dynamic programming, graph theory, and algorithmic problem-solving benchmarks.
             </p>
             <a
-              href="https://leetcode.com/u/piyushshukla11/"
+              href="https://leetcode.com/u/zogratis_775314/"
               target="_blank"
               rel="noreferrer"
               className="channel-cta-button"

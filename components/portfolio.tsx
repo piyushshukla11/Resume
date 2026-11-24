@@ -42,7 +42,7 @@ export function Portfolio() {
   const [curated, setCurated] = useState<PortfolioProject[]>([]);
   const [mobileMenu, setMobileMenu] = useState(false);
   const email = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "piyushsukla775314@gmail.com";
-  const leetcodeUsername = process.env.NEXT_PUBLIC_LEETCODE_USERNAME || "piyushshukla11";
+  const leetcodeUsername = process.env.NEXT_PUBLIC_LEETCODE_USERNAME || "zogratis_775314";
   const projects = useMemo(() => [...featuredProjects, ...curated], [curated]);
   const highlightProjects = useMemo(() => {
     const highlightIds = ["voyage", "ulpin-cadastre"];

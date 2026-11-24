@@ -13,6 +13,7 @@ const commands = [
   { label: "Jump to Competitive", hint: "Problem solving profiles", type: "section", value: "competitive" },
   { label: "Jump to Contact", hint: "Get in touch", type: "route", value: "/contact" },
   { label: "Open GitHub", hint: "@piyushshukla11", type: "link", value: "https://github.com/piyushshukla11" },
+  { label: "Open LeetCode", hint: "@zogratis_775314", type: "link", value: "https://leetcode.com/u/zogratis_775314/" },
   { label: "Open LinkedIn", hint: "piyush-shukla-dev", type: "link", value: "https://www.linkedin.com/in/piyush-shukla-dev" },
   { label: "Copy email address", hint: "Copy to clipboard", type: "email", value: "email" },
   { label: "Export resume as PDF", hint: "Print-ready, ATS-friendly layout", type: "print", value: "print" },

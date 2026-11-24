@@ -318,3 +318,14 @@ test("stack: highlights all core technologies with green primary box except unit
     }
   }
 });
+
+test("leetcode: profile handle links to zogratis_775314", async () => {
+  const fs = await import("node:fs");
+  const portfolioSrc = fs.readFileSync("components/portfolio.tsx", "utf8");
+  const contactSrc = fs.readFileSync("app/contact/page.tsx", "utf8");
+  const paletteSrc = fs.readFileSync("components/command-palette.tsx", "utf8");
+
+  assert.ok(portfolioSrc.includes("zogratis_775314"), "Portfolio must fallback to zogratis_775314");
+  assert.ok(contactSrc.includes("https://leetcode.com/u/zogratis_775314/"), "Contact page must link to zogratis_775314");
+  assert.ok(paletteSrc.includes("https://leetcode.com/u/zogratis_775314/"), "Command palette must link to zogratis_775314");
+});
