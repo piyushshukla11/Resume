@@ -45,6 +45,13 @@ export function Portfolio() {
   const leetcodeUsername = process.env.NEXT_PUBLIC_LEETCODE_USERNAME;
   const codechefUsername = process.env.NEXT_PUBLIC_CODECHEF_USERNAME;
   const projects = useMemo(() => [...featuredProjects, ...curated], [curated]);
+  const highlightProjects = useMemo(() => {
+    const highlightIds = ["voyage", "ulpin-cadastre"];
+    const list = highlightIds
+      .map((id) => projects.find((p) => p.id === id))
+      .filter(Boolean) as PortfolioProject[];
+    return list.length === 2 ? list : projects.slice(0, 2);
+  }, [projects]);
 
   useEffect(() => {
     let alive = true;
@@ -151,7 +158,7 @@ export function Portfolio() {
               </Link>
             </div>
             <div className="project-grid">
-              {featuredProjects.slice(0, 2).map((project, index) => (
+              {highlightProjects.map((project, index) => (
                 <Link key={project.id} href={`/projects/${project.id}`} className="project-card">
                   <span className="project-card-top">
                     <span className="project-count">{String(index + 1).padStart(2, "0")} / {project.category.toUpperCase()}</span>

@@ -23,7 +23,7 @@ export const featuredProjects: PortfolioProject[] = [
   {
     id: "polyexecution-studio2",
     title: "PolyExecution Studio 2 (PES 2)",
-    subtitle: "Zero-trust kernel sandbox supporting 27 LeetCode runtime environments",
+    subtitle: "Zero-trust kernel sandbox supporting 27 programming environments",
     category: "systems",
     tags: ["C", "Linux cgroups v2", "Namespaces", "seccomp-bpf", "Python", "gRPC", "27 Runtimes"],
     summary: "A high-performance remote execution engine and browser studio engineered to safely evaluate 27 programming environments. Built with Linux cgroups v2, unprivileged user/mount/pid/net namespaces, strict seccomp-bpf filters, and typed runtime adapters.",
@@ -32,17 +32,17 @@ export const featuredProjects: PortfolioProject[] = [
       "Custom Linux native runner written in C leveraging clone(), unshare(CLONE_NEWPID | CLONE_NEWNET | CLONE_NEWNS), and pivot_root for sub-millisecond container creation.",
       "Strict resource bounding with setrlimit() for CPU time, file size, stack depth, and RLIMIT_NOFILE to prevent fork bombs and file descriptor leaks.",
       "Seccomp-BPF least-privilege filter profiles tailored per language, permitting sched_setaffinity(pid == 0) for runtimes like CoreCLR while default-denying socket() and elevated syscalls.",
-      "Control plane decoupled from the native worker via gRPC streams, handling lifecycle milestones from accepted, compiling, to running and result collection across 27 LeetCode environments.",
+      "Control plane decoupled from the native worker via gRPC streams, handling lifecycle milestones from accepted, compiling, to running and result collection across 27 programming environments.",
     ],
     challengesSolved: [
       "Eliminated container daemon latency, dropping process isolation startup from ~450ms (Docker) to <12ms native execution.",
-      "Engineered typed RuntimeAdapter abstractions for 27 LeetCode environments ranging from GCC/Clang and JVM to BEAM VM and disposable PostgreSQL.",
+      "Engineered typed RuntimeAdapter abstractions for 27 programming environments ranging from GCC/Clang and JVM to BEAM VM and disposable PostgreSQL.",
       "Prevented CoreCLR .NET 10 startup out-of-memory errors by tuning virtual memory limits and file size allowances for memfd JIT compilation buffers.",
       "Enforced zero cgroup leftovers through rigorous delegated cgroup v2 subtree cleanup on process completion.",
     ],
     metrics: [
       { label: "Worker Startup", value: "<12ms" },
-      { label: "Environments", value: "27 LeetCode Runtimes" },
+      { label: "Environments", value: "27 Programming Environments" },
       { label: "Syscall Filtering", value: "Seccomp BPF" },
       { label: "Sandbox Security", value: "Net/PID/Mnt Namespaces" },
     ],
@@ -67,7 +67,7 @@ int enter_sandbox_containment(const sandbox_config_t *cfg) {
     ],
     outcomes: [
       "Sub-millisecond process startup overhead compared to heavyweight OCI containers.",
-      "Safe multi-tenant untrusted execution runtime supporting 27 LeetCode programming languages for competitive platforms and coding education.",
+      "Safe multi-tenant untrusted execution runtime supporting 27 programming environments for competitive platforms and coding education.",
     ],
     githubUrl: "https://github.com/piyushshukla11/polyexecution-studio2",
     featured: true,
@@ -122,7 +122,7 @@ int setup_isolation_jail(const char *new_root) {
     ],
     outcomes: [
       "High-performance isolated execution pipeline capable of running concurrent untrusted C, Python, and Java programs.",
-      "Architectural foundation that paved the way for PES 2's expansion to 27 LeetCode runtime environments.",
+      "Architectural foundation that paved the way for PES 2's expansion to 27 programming environments.",
     ],
     githubUrl: "https://github.com/piyushshukla11/polyexecution-studio",
     featured: true,

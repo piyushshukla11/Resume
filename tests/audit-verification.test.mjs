@@ -185,6 +185,18 @@ test("projects: all 10 archived systems have unique IDs, categories, and case st
     const retrieved = getProject(project.id);
     assert.equal(retrieved?.id, project.id, `getProject failed to find ${project.id}`);
   }
+
+  // Verify PES 2 wording specifies 27 programming environments without LeetCode
+  const pes2 = getProject("polyexecution-studio2");
+  assert.ok(pes2, "PES 2 must exist");
+  assert.ok(pes2.subtitle.includes("27 programming environments"));
+  assert.ok(!pes2.subtitle.toLowerCase().includes("leetcode"));
+
+  // Verify Voyage and 3D ULPIN exist for highlights
+  const voyage = getProject("voyage");
+  assert.ok(voyage, "Voyage must exist");
+  const ulpin = getProject("ulpin-cadastre");
+  assert.ok(ulpin, "3D ULPIN must exist");
 });
 
 test("weather-state: resolveWeatherState deterministically maps all preview modes", async () => {
