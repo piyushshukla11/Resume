@@ -214,3 +214,59 @@ test("weather-state: resolveWeatherState deterministically maps all preview mode
   assert.equal(sunnyState.isSunny, true);
   assert.equal(sunnyState.weatherClass, "weather-sunny");
 });
+
+test("weather-clouds: procedurally generates randomized Minecraft clouds with voxel geometry", async () => {
+  const {
+    MINECRAFT_CLOUD_SHAPES,
+    createRandomMinecraftCloud,
+    getRandomCloudCount,
+    createMinecraftCloudField,
+  } = await import("../lib/weather-clouds.ts");
+
+  // 1. Validate voxel shape catalog
+  assert.ok(MINECRAFT_CLOUD_SHAPES.length >= 6, "Must define at least 6 distinct Minecraft silhouettes");
+  for (const shape of MINECRAFT_CLOUD_SHAPES) {
+    assert.ok(shape.length > 0, "Each shape must contain at least one voxel block");
+    for (const b of shape) {
+      assert.ok(b.gridX >= 0 && b.gridY >= 0, "Grid coordinates must be non-negative");
+      assert.ok(b.gridW > 0 && b.gridH > 0, "Block dimensions must be strictly positive");
+    }
+  }
+
+  // 2. Validate cloud counts across weather conditions
+  for (let i = 0; i < 20; i++) {
+    const cloudyCount = getRandomCloudCount({ isCloudy: true });
+    assert.ok(cloudyCount >= 7 && cloudyCount <= 10, `Cloudy count out of range: ${cloudyCount}`);
+
+    const rainCount = getRandomCloudCount({ isRain: true });
+    assert.ok(rainCount >= 5 && rainCount <= 7, `Rain count out of range: ${rainCount}`);
+
+    const snowCount = getRandomCloudCount({ isSnow: true });
+    assert.ok(snowCount >= 4 && snowCount <= 6, `Snow count out of range: ${snowCount}`);
+
+    const sunnyCount = getRandomCloudCount({ isSunny: true });
+    assert.ok(sunnyCount >= 2 && sunnyCount <= 3, `Sunny count out of range: ${sunnyCount}`);
+
+    const nightCount = getRandomCloudCount({ isNight: true });
+    assert.ok(nightCount >= 1 && nightCount <= 3, `Night count out of range: ${nightCount}`);
+  }
+
+  // 3. Validate procedural cloud generation
+  const cloudInitial = createRandomMinecraftCloud(1200, 800, true);
+  assert.ok(cloudInitial.totalWidth > 0 && cloudInitial.totalHeight > 0);
+  assert.ok(cloudInitial.speed >= 10 && cloudInitial.speed <= 25);
+  assert.ok(cloudInitial.y >= 20 && cloudInitial.y <= 260);
+  assert.ok(cloudInitial.cellW >= 15 && cloudInitial.cellW <= 22);
+  assert.ok(cloudInitial.cellH >= 10 && cloudInitial.cellH <= 14);
+
+  // 4. Validate boundary respawn logic (spawns offscreen left)
+  const cloudRespawn = createRandomMinecraftCloud(1200, 800, false);
+  assert.ok(cloudRespawn.x < 0, "Respawned cloud must start off-screen to the left");
+
+  // 5. Validate field generation
+  const field = createMinecraftCloudField(1400, 900, 8);
+  assert.equal(field.length, 8);
+  const shapesUsed = new Set(field.map((c) => c.shapeIdx));
+  // In 8 random rolls from 7 shapes, there should almost certainly be multiple distinct shapes
+  assert.ok(shapesUsed.size > 1, "Field should display varied Minecraft cloud shapes");
+});
