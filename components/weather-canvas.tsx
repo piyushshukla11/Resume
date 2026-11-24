@@ -4,19 +4,25 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useWeather } from "@/components/weather-provider";
 import { resolveWeatherState } from "@/lib/weather-state";
 
-type PixelPuff = {
-  rx: number; // 0..1 fraction of cloud width
-  ry: number; // px offset from cloud top
-  rw: number; // 0..1 fraction of cloud width
-  rh: number; // px height of puff
+// =============================================================================
+// MINECRAFT CLOUD VOXEL TYPES
+// =============================================================================
+type VoxelBlock = {
+  gridX: number;
+  gridY: number;
+  gridW: number;
+  gridH: number;
 };
 
-type PixelCloud = {
+type MinecraftCloud = {
   x: number;
   y: number;
-  width: number;
   speed: number;
-  puffs: PixelPuff[];
+  cellW: number;
+  cellH: number;
+  blocks: VoxelBlock[];
+  totalWidth: number;
+  totalHeight: number;
 };
 
 type Raindrop = {
@@ -50,38 +56,68 @@ type Star = {
   armLen: number;
 };
 
-function createClouds(width: number): PixelCloud[] {
-  const standardPuffs: PixelPuff[] = [
-    { rx: 0.02, ry: 8, rw: 0.36, rh: 18 },
-    { rx: 0.20, ry: 0, rw: 0.50, rh: 28 },
-    { rx: 0.56, ry: 6, rw: 0.40, rh: 22 },
-    { rx: 0.05, ry: 16, rw: 0.90, rh: 14 },
+function createMinecraftClouds(width: number): MinecraftCloud[] {
+  // Handcrafted Minecraft cloud silhouettes composed strictly of rectangular voxel blocks
+  const shapes: VoxelBlock[][] = [
+    // Shape 1: Classic stepped Minecraft cruiser
+    [
+      { gridX: 2, gridY: 0, gridW: 6, gridH: 2 },
+      { gridX: 0, gridY: 1, gridW: 11, gridH: 2 },
+      { gridX: 4, gridY: 2, gridW: 9, gridH: 2 },
+      { gridX: 1, gridY: 2, gridW: 4, gridH: 1 },
+    ],
+    // Shape 2: Wide horizontal Minecraft cloud slab
+    [
+      { gridX: 0, gridY: 1, gridW: 14, gridH: 2 },
+      { gridX: 3, gridY: 0, gridW: 8, gridH: 2 },
+      { gridX: 7, gridY: 2, gridW: 8, gridH: 2 },
+    ],
+    // Shape 3: Stepped cumulus voxel cluster
+    [
+      { gridX: 3, gridY: 0, gridW: 5, gridH: 2 },
+      { gridX: 1, gridY: 1, gridW: 9, gridH: 3 },
+      { gridX: 0, gridY: 2, gridW: 12, gridH: 2 },
+      { gridX: 8, gridY: 1, gridW: 5, gridH: 2 },
+    ],
+    // Shape 4: Long high-altitude Minecraft slab
+    [
+      { gridX: 0, gridY: 0, gridW: 16, gridH: 2 },
+      { gridX: 4, gridY: 1, gridW: 10, gridH: 2 },
+      { gridX: 9, gridY: 0, gridW: 8, gridH: 3 },
+    ],
+    // Shape 5: Compact voxel cloud
+    [
+      { gridX: 1, gridY: 0, gridW: 5, gridH: 2 },
+      { gridX: 0, gridY: 1, gridW: 8, gridH: 2 },
+      { gridX: 3, gridY: 2, gridW: 6, gridH: 2 },
+    ],
   ];
 
-  const tallPuffs: PixelPuff[] = [
-    { rx: 0.03, ry: 12, rw: 0.34, rh: 20 },
-    { rx: 0.22, ry: 0, rw: 0.46, rh: 32 },
-    { rx: 0.54, ry: 8, rw: 0.42, rh: 24 },
-    { rx: 0.08, ry: 20, rw: 0.84, rh: 16 },
+  const configs = [
+    { shapeIdx: 0, startFrac: 0.05, y: 40, speed: 14, cellW: 18, cellH: 12 },
+    { shapeIdx: 1, startFrac: 0.38, y: 95, speed: 20, cellW: 20, cellH: 13 },
+    { shapeIdx: 2, startFrac: 0.72, y: 35, speed: 12, cellW: 17, cellH: 11 },
+    { shapeIdx: 3, startFrac: 0.20, y: 150, speed: 17, cellW: 20, cellH: 14 },
+    { shapeIdx: 4, startFrac: 0.85, y: 115, speed: 15, cellW: 16, cellH: 11 },
+    { shapeIdx: 1, startFrac: 0.52, y: 185, speed: 18, cellW: 19, cellH: 12 },
+    { shapeIdx: 0, startFrac: 0.12, y: 220, speed: 13, cellW: 18, cellH: 12 },
   ];
 
-  const widePuffs: PixelPuff[] = [
-    { rx: 0.01, ry: 10, rw: 0.28, rh: 16 },
-    { rx: 0.16, ry: 2, rw: 0.42, rh: 26 },
-    { rx: 0.46, ry: 0, rw: 0.38, rh: 28 },
-    { rx: 0.70, ry: 6, rw: 0.28, rh: 20 },
-    { rx: 0.04, ry: 16, rw: 0.92, rh: 14 },
-  ];
-
-  return [
-    { x: width * 0.05, y: 45, width: 220, speed: 16, puffs: standardPuffs },
-    { x: width * 0.40, y: 105, width: 280, speed: 22, puffs: widePuffs },
-    { x: width * 0.75, y: 35, width: 190, speed: 13, puffs: tallPuffs },
-    { x: width * 0.22, y: 165, width: 310, speed: 19, puffs: widePuffs },
-    { x: width * 0.85, y: 130, width: 240, speed: 15, puffs: standardPuffs },
-    { x: width * 0.52, y: 210, width: 200, speed: 20, puffs: tallPuffs },
-    { x: width * 0.12, y: 265, width: 260, speed: 14, puffs: standardPuffs },
-  ];
+  return configs.map((cfg) => {
+    const blocks = shapes[cfg.shapeIdx];
+    const maxX = Math.max(...blocks.map((b) => b.gridX + b.gridW)) * cfg.cellW;
+    const maxY = Math.max(...blocks.map((b) => b.gridY + b.gridH)) * cfg.cellH;
+    return {
+      x: width * cfg.startFrac,
+      y: cfg.y,
+      speed: cfg.speed,
+      cellW: cfg.cellW,
+      cellH: cfg.cellH,
+      blocks,
+      totalWidth: maxX,
+      totalHeight: maxY,
+    };
+  });
 }
 
 function createRaindrops(w: number, h: number, count: number): Raindrop[] {
@@ -177,7 +213,7 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
     resize();
 
     // Weather entities
-    const clouds = createClouds(width);
+    const clouds = createMinecraftClouds(width);
     const raindrops = createRaindrops(width, height, 75);
     const splashes: RainSplash[] = [];
     const snowflakes = createSnowflakes(width, height, 65);
@@ -256,14 +292,12 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
             const py = scy + gy * ps;
 
             if (overcast) {
-              // Muted, softer palette when veiled by clouds
               if (distSq <= 12) ctx.fillStyle = "#fef9c3";
               else if (distSq <= 32) ctx.fillStyle = "#fef08a";
               else if (distSq <= 65) ctx.fillStyle = "#facc15";
               else if (distSq <= 95) ctx.fillStyle = "#eab308";
               else ctx.fillStyle = "#ca8a04";
             } else {
-              // Bright radiant clear palette
               if (distSq <= 12) ctx.fillStyle = "#ffffff";
               else if (distSq <= 32) ctx.fillStyle = "#fef08a";
               else if (distSq <= 65) ctx.fillStyle = "#facc15";
@@ -322,10 +356,10 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
     };
 
     // =========================================================================
-    // 3. STEPPED PIXEL CLOUD ENGINE (Voxel Atmosphere)
+    // 3. MINECRAFT VOXEL CLOUD ENGINE (Authentic 3D Block Slabs)
     // =========================================================================
-    const drawPixelClouds = (
-      cl: PixelCloud[],
+    const drawMinecraftClouds = (
+      cloudsList: MinecraftCloud[],
       w: number,
       dt: number,
       count: number,
@@ -335,60 +369,68 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
       ctx.save();
       ctx.globalAlpha = opacityMultiplier;
 
+      // Minecraft 3D voxel color palettes
       let topColor = "#ffffff";
       let bodyColor = "#e2e8f0";
-      let shadowColor = "#94a3b8";
+      let shadowColor = "#64748b";
+      let seamColor = "rgba(148, 163, 184, 0.4)";
 
       if (palette === "storm") {
         topColor = "#64748b";
         bodyColor = "#334155";
-        shadowColor = "#1e293b";
+        shadowColor = "#0f172a";
+        seamColor = "rgba(15, 23, 42, 0.6)";
       } else if (palette === "night") {
-        topColor = "rgba(148, 163, 184, 0.75)";
-        bodyColor = "rgba(30, 41, 59, 0.8)";
-        shadowColor = "rgba(15, 23, 42, 0.9)";
+        topColor = "rgba(186, 230, 253, 0.85)";
+        bodyColor = "rgba(30, 41, 59, 0.88)";
+        shadowColor = "rgba(15, 23, 42, 0.95)";
+        seamColor = "rgba(51, 65, 85, 0.5)";
       } else if (palette === "snow") {
         topColor = "#f8fafc";
         bodyColor = "#cbd5e1";
         shadowColor = "#94a3b8";
+        seamColor = "rgba(100, 116, 139, 0.4)";
       }
 
-      const activeClouds = cl.slice(0, count);
+      const activeClouds = cloudsList.slice(0, count);
 
       for (const c of activeClouds) {
         c.x += c.speed * dt;
-        if (c.x > w + 80) {
-          c.x = -c.width - 60;
+        if (c.x > w + 60) {
+          c.x = -c.totalWidth - 60;
         }
 
         const cx = Math.round(c.x);
         const cy = Math.round(c.y);
 
-        for (const p of c.puffs) {
-          const px = cx + Math.round(p.rx * c.width);
-          const py = cy + p.ry;
-          const pw = Math.round(p.rw * c.width);
-          const ph = p.rh;
+        for (const b of c.blocks) {
+          const bx = Math.round(cx + b.gridX * c.cellW);
+          const by = Math.round(cy + b.gridY * c.cellH);
+          const bw = Math.round(b.gridW * c.cellW);
+          const bh = Math.round(b.gridH * c.cellH);
 
-          // Shadow base
+          // 1. Bottom shadow face (underside of Minecraft voxel slab)
           ctx.fillStyle = shadowColor;
-          ctx.fillRect(px, py, pw, ph);
+          ctx.fillRect(bx, by, bw, bh);
 
-          // Main body
-          if (ph > 5) {
+          // 2. Front vertical face (body thickness of the block)
+          if (bh > 4) {
             ctx.fillStyle = bodyColor;
-            ctx.fillRect(px, py, pw, ph - 5);
+            ctx.fillRect(bx, by, bw, bh - 4);
           }
 
-          // Top highlight rim
+          // 3. Top face highlight (sunlit upper plane of Minecraft block)
           ctx.fillStyle = topColor;
-          ctx.fillRect(px + 2, py, pw - 4, 3);
+          ctx.fillRect(bx, by, bw, 3);
 
-          // Stepped corner cuts for 16-bit rounded voxel aesthetic
-          ctx.clearRect(px, py, 2, 2);
-          ctx.clearRect(px + pw - 2, py, 2, 2);
-          ctx.clearRect(px, py + ph - 2, 2, 2);
-          ctx.clearRect(px + pw - 2, py + ph - 2, 2, 2);
+          // 4. Subtle inner voxel grid lines (block unit seams)
+          ctx.fillStyle = seamColor;
+          for (let gx = 1; gx < b.gridW; gx++) {
+            ctx.fillRect(bx + gx * c.cellW, by + 3, 1, bh - 7);
+          }
+          for (let gy = 1; gy < b.gridH; gy++) {
+            ctx.fillRect(bx, by + gy * c.cellH, bw, 1);
+          }
         }
       }
 
@@ -483,23 +525,23 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
       }
 
       // -----------------------------------------------------------------------
-      // LAYER 2: STEPPED PIXEL CLOUDS
+      // LAYER 2: MINECRAFT VOXEL CLOUDS
       // -----------------------------------------------------------------------
       if (isCloudy) {
-        // Full rich cloud cover (7 fluffy multi-tiered clouds drifting across)
-        drawPixelClouds(clouds, width, dt, 7, isNight ? "night" : "day", 1.0);
+        // Full rich Minecraft cloud cover (7 multi-tier blocky voxel clouds drifting across)
+        drawMinecraftClouds(clouds, width, dt, 7, isNight ? "night" : "day", 1.0);
       } else if (isRain) {
-        // Dark moody storm clouds
-        drawPixelClouds(clouds, width, dt, 5, "storm", 1.0);
+        // Dark moody Minecraft storm slabs
+        drawMinecraftClouds(clouds, width, dt, 5, "storm", 1.0);
       } else if (isSnow) {
-        // Soft winter snow clouds
-        drawPixelClouds(clouds, width, dt, 5, "snow", 0.95);
+        // Soft winter Minecraft snow slabs
+        drawMinecraftClouds(clouds, width, dt, 5, "snow", 0.95);
       } else if (isSunny) {
-        // Subtle, high, sparse wisps
-        drawPixelClouds(clouds, width, dt, 2, "day", 0.35);
+        // 2 subtle high-altitude Minecraft clouds
+        drawMinecraftClouds(clouds, width, dt, 2, "day", 0.40);
       } else if (isNight) {
-        // Light midnight clouds
-        drawPixelClouds(clouds, width, dt, 2, "night", 0.25);
+        // Light midnight Minecraft clouds
+        drawMinecraftClouds(clouds, width, dt, 2, "night", 0.30);
       }
 
       // -----------------------------------------------------------------------
