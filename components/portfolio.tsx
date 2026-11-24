@@ -93,7 +93,7 @@ export function Portfolio() {
       <section className="hero section-wrap" aria-labelledby="hero-title">
         <div className="hero-content">
           <p className="eyebrow hero-eyebrow"><span className="status-light" /> ❖ KEEP ON BUILDING ❖</p>
-          <h1 id="hero-title">I push<br />pixels until<br />they push<br /><em>back.</em></h1>
+          <h1 id="hero-title">I push pixels until<br />they push <em>back.</em></h1>
           <p className="hero-copy">I’m Piyush Shukla — a robotics and artificial intelligence undergrad drawn to the layers beneath the interface. I build execution systems, useful AI, and playful worlds.</p>
           <div className="hero-actions"><Link className="button button-primary" href="/work">Explore the index <ArrowRight size={15} /></Link><a className="button button-outline" href="https://github.com/piyushshukla11" target="_blank" rel="noreferrer"><Github size={15} /> GitHub <ArrowUpRight size={13} /></a></div>
           <p className="hero-hint"><span className="hint-mark">❖</span> 8-bit weather engine active. Engineering index is available as a dedicated archive.</p>

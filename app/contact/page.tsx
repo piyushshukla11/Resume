@@ -76,7 +76,7 @@ export default function ContactPage() {
           </div>
 
           <h1 className="bio-heading">
-            I push<br />pixels until<br />they push<br /><em>back.</em>
+            I push pixels until<br />they push <em>back.</em>
           </h1>
 
           <div className="bio-description-body">

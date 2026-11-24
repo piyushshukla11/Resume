@@ -558,7 +558,7 @@ main textarea,
   font-family: var(--font-pixel-title);
   font-size: clamp(28px, 4.2vw, 52px);
   font-weight: 700;
-  line-height: 1.38;
+  line-height: 1.32;
   letter-spacing: 0.02em;
   text-shadow: 4px 4px 0 #020617, -2px -2px 0 #020617, 2px -2px 0 #020617, -2px 2px 0 #020617;
 }
@@ -1494,7 +1494,7 @@ main textarea,
   .section-wrap, .site-footer { width: calc(100% - 36px); }
   .hero { min-height: 760px; align-items: flex-start; padding-top: 219px; padding-bottom: 90px; }
   .hero-content { width: 100%; }
-  .hero h1 { font-size: clamp(48px, 12.4vw, 76px); }
+  .hero h1 { font-size: clamp(34px, 9.5vw, 60px); line-height: 1.28; }
   .hero-copy { max-width: 440px; margin-top: 22px; font-size: 13px; }
   .hero-instrument { right: 0; bottom: 88px; width: 230px; }
   .scroll-cue { bottom: 39px; }
