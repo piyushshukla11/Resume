@@ -81,7 +81,7 @@ export default function ContactPage() {
 
           <div className="bio-description-body">
             <p>
-              I’m <strong>Piyush Shukla</strong> — a computer science undergraduate driven by the foundational
+              I’m <strong>Piyush Shukla</strong> — a robotics and artificial intelligence undergraduate driven by the foundational
               layers underneath the interface. I design execution engines, resilient AI toolchains,
               lunar computer vision systems, and interactive worlds.
             </p>

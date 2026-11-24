@@ -23,7 +23,7 @@ const stacks = [
   { label: "WEB, DATA & AI", items: ["JavaScript", "TypeScript", "Python", "SQL", "PostGIS", "Scikit-learn", "Gemini API", "CesiumJS"] },
 ];
 const milestones = [
-  { date: "2025 — PRESENT", title: "Computer Science & Engineering", detail: "Undergraduate studies · Bengaluru", mark: "01" },
+  { date: "2025 — PRESENT", title: "Robotics & Artificial Intelligence", detail: "Undergraduate studies · Bengaluru", mark: "01" },
   { date: "HACK MALENADU ’26", title: "PRISM · Top 12 finalist", detail: "AI-powered customer review intelligence", mark: "02" },
   { date: "RIFT ’26", title: "Systems under constraints", detail: "Competitive build sprint and prototype work", mark: "03" },
   { date: "YUGAANTAR", title: "Ideas into working systems", detail: "Hackathon prototyping across software and hardware", mark: "04" },
@@ -135,7 +135,7 @@ export function Portfolio() {
         <div className="hero-content">
           <p className="eyebrow hero-eyebrow"><span className="status-light" /> ❖ BUILDING SYSTEMS THAT HOLD UP ❖</p>
           <h1 id="hero-title">I make complex<br />systems feel <em>simple.</em></h1>
-          <p className="hero-copy">I’m Piyush Shukla — a computer science undergrad drawn to the layers beneath the interface. I build execution systems, useful AI, and playful worlds.</p>
+          <p className="hero-copy">I’m Piyush Shukla — a robotics and artificial intelligence undergrad drawn to the layers beneath the interface. I build execution systems, useful AI, and playful worlds.</p>
           <div className="hero-actions"><Link className="button button-primary" href="/work">Explore the index <ArrowRight size={15} /></Link><a className="button button-outline" href="https://github.com/piyushshukla11" target="_blank" rel="noreferrer"><Github size={15} /> GitHub <ArrowUpRight size={13} /></a></div>
           <p className="hero-hint"><span className="hint-mark">❖</span> 8-bit weather engine active. Engineering index is available as a dedicated archive.</p>
         </div>

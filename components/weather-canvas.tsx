@@ -274,7 +274,7 @@ export function WeatherCanvas({ onProjectSelect }: { onProjectSelect?: (projectI
               <p className="dialogue-role">
                 {night
                   ? "Systems & Low-Level Architecture · Night Owl Mode"
-                  : "Computer Science Undergrad · Systems, AI & Games"}
+                  : "Robotics & Artificial Intelligence Undergrad · Systems, AI & Games"}
               </p>
 
               <div className="dialogue-stack-wrap">
