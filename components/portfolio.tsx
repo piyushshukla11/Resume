@@ -19,7 +19,7 @@ const modes: { id: WeatherMode; label: string }[] = [
 ];
 const stacks = [
   { label: "SYSTEMS & CORE", items: ["C", "C++", "Python", "Java", "Kotlin", "Android dev"] },
-  { label: "GAME DEV & 3D", items: ["C#", "Unity", "Unreal Engine", "Blender", "Shader foundations", "3D mathematics"] },
+  { label: "GAME DEV & 3D", items: ["C#", "Unity", "Blender"] },
   { label: "WEB, DATA & AI", items: ["JavaScript", "React", "Node.js", "SQL", "Gemini API", "CesiumJS"] },
 ];
 const milestones = [
