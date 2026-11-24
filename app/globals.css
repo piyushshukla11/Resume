@@ -3273,3 +3273,45 @@ main textarea,
 .contact-page-footer .footer-links a:hover {
   color: #38bdf8;
 }
+
+/* ==========================================================================
+   Pixel Intro & Gray Scene Dissolve Overlay
+   ========================================================================== */
+.pixel-intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  pointer-events: auto;
+  overflow: hidden;
+  user-select: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.pixel-intro-canvas {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.pixel-intro-skip-hint {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #64748b;
+  font: 9px var(--font-pixel-heading);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  pointer-events: none;
+  opacity: 0.75;
+  text-shadow: 1px 1px 0 #000;
+  transition: opacity 0.2s ease;
+}
+
+.pixel-intro-overlay:hover .pixel-intro-skip-hint {
+  opacity: 1;
+  color: #94a3b8;
+}

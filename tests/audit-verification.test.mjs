@@ -329,3 +329,15 @@ test("leetcode: profile handle links to zogratis_775314", async () => {
   assert.ok(contactSrc.includes("https://leetcode.com/u/zogratis_775314/"), "Contact page must link to zogratis_775314");
   assert.ok(paletteSrc.includes("https://leetcode.com/u/zogratis_775314/"), "Command palette must link to zogratis_775314");
 });
+
+test("pixel-intro: component and layout integration", async () => {
+  const fs = await import("node:fs");
+  const layoutSrc = fs.readFileSync("app/layout.tsx", "utf8");
+  const introSrc = fs.readFileSync("components/pixel-intro.tsx", "utf8");
+  const cssSrc = fs.readFileSync("app/globals.css", "utf8");
+
+  assert.ok(layoutSrc.includes("<PixelIntro />"), "PixelIntro must be included in RootLayout");
+  assert.ok(introSrc.includes("BITMAP_M") && introSrc.includes("BITMAP_E") && introSrc.includes("BITMAP_DOT"), "Must define pixel glyph bitmaps");
+  assert.ok(introSrc.includes("clearRect"), "Must use clearRect for block-by-block pixel dissolve");
+  assert.ok(cssSrc.includes(".pixel-intro-overlay"), "globals.css must define .pixel-intro-overlay");
+});

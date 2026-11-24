@@ -18,6 +18,7 @@ const commands = [
   { label: "Copy email address", hint: "Copy to clipboard", type: "email", value: "email" },
   { label: "Export resume as PDF", hint: "Print-ready, ATS-friendly layout", type: "print", value: "print" },
   { label: "Toggle focus mode", hint: "Quiet the weather canvas", type: "focus", value: "focus" },
+  { label: "Replay intro animation", hint: "ME pixel pop-up & block dissolve", type: "intro", value: "intro" },
 ];
 
 export function CommandPalette({ open, onClose, email, onToggleFocus }: { open: boolean; onClose: () => void; email: string; onToggleFocus: () => void }) {
@@ -48,6 +49,7 @@ export function CommandPalette({ open, onClose, email, onToggleFocus }: { open: 
     }
     if (command.type === "print") window.print();
     if (command.type === "focus") onToggleFocus();
+    if (command.type === "intro") window.dispatchEvent(new CustomEvent("me:replay-intro"));
     if (command.type !== "email") onClose();
   }
 

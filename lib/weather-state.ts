@@ -23,7 +23,8 @@ export const simulatedCondition: Record<WeatherMode, WeatherCondition | null> = 
 };
 
 export function createDefaultSnapshot(mode: WeatherMode = "clear-day"): WeatherSnapshot {
-  const isNight = mode === "clear-night";
+  const hour = typeof Date !== "undefined" ? new Date().getHours() : 12;
+  const isNight = mode === "clear-night" || (mode === "auto" && (hour < 6 || hour >= 18));
   return {
     latitude: 12.9716,
     longitude: 77.5946,
