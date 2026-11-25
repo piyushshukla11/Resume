@@ -151,7 +151,7 @@ export function Portfolio() {
               <span>DEDICATED ARCHIVE · 10 PRODUCTION SYSTEMS</span>
             </div>
             <Link href="/work" className="button button-primary">
-              <span>Open Dedicated Index</span>
+              <span>Open Index</span>
               <ArrowRight size={14} />
             </Link>
           </div>
