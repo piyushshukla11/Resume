@@ -5,7 +5,7 @@ import { PixelIntro } from "@/components/pixel-intro";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ME — Piyush Shukla",
+  title: "ME",
   description: "Systems-focused engineer building precise software and playful worlds.",
 };
 

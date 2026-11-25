@@ -354,3 +354,10 @@ test("email: contact address is piyushshukla775314@gmail.com with live compose a
   assert.ok(contactSrc.includes("mail.google.com/mail/?view=cm"), "Contact page must link to web compose");
   assert.ok(portfolioSrc.includes("mail.google.com/mail/?view=cm"), "Portfolio start conversation must link to web compose");
 });
+
+test("metadata: root tab title is ME", async () => {
+  const fs = await import("node:fs");
+  const layoutSrc = fs.readFileSync("app/layout.tsx", "utf8");
+  assert.ok(layoutSrc.includes('title: "ME"'), "Root layout title must be strictly ME without name");
+  assert.ok(!layoutSrc.includes('title: "ME — Piyush Shukla"'), "Must remove full name from root title");
+});
