@@ -151,11 +151,11 @@ export function PixelIntro({ onComplete }: PixelIntroProps) {
 
     function frame(now: number) {
       if (!ctx) return;
-      const elapsed = skippedRef.current ? 2000 : now - startTimeRef.current;
+      const elapsed = skippedRef.current ? 5000 : now - startTimeRef.current;
 
-      // Phase 1: Pop-up animation (0 - 350ms)
-      if (elapsed < 350) {
-        const p = Math.min(1, elapsed / 350);
+      // Phase 1: Pop-up animation (0 - 400ms)
+      if (elapsed < 400) {
+        const p = Math.min(1, elapsed / 400);
         const scale = easeOutBack(p);
         const alpha = Math.min(1, elapsed / 100);
         renderScene(scale, alpha);
@@ -163,16 +163,16 @@ export function PixelIntro({ onComplete }: PixelIntroProps) {
         return;
       }
 
-      // Phase 2: Hold & Telemetry Ready (350 - 750ms)
-      if (elapsed < 750) {
+      // Phase 2: Hold & Display ME Logo (400 - 1750ms) - extended by a second for prominent display
+      if (elapsed < 1750) {
         renderScene(1.0, 1.0);
         animFrameRef.current = requestAnimationFrame(frame);
         return;
       }
 
-      // Phase 3: White Screen & Logo Dissolve Pixel Block by Pixel Block (750 - 1450ms)
-      const dissolveElapsed = elapsed - 750;
-      const dissolveDuration = 700;
+      // Phase 3: White Screen & Logo Dissolve Pixel Block by Pixel Block (1750 - 2500ms)
+      const dissolveElapsed = elapsed - 1750;
+      const dissolveDuration = 750;
       const progress = Math.min(1, dissolveElapsed / dissolveDuration);
 
       // Re-render base scene before clearing blocks
