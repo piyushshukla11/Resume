@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { ArrowLeft, ArrowUpRight, Github, Search, SlidersHorizontal, Sparkles } from "lucide-react";
 import type { PortfolioProject, ProjectCategory } from "@/lib/projects";
+import { useWeather } from "@/components/weather-provider";
+import { WeatherShell } from "@/components/weather-shell";
 
 type CategoryFilter = ProjectCategory | "all";
 
@@ -17,6 +19,7 @@ const filterTabs: { id: CategoryFilter; label: string }[] = [
 export function EngineeringIndexView({ projects }: { projects: PortfolioProject[] }) {
   const [activeFilter, setActiveFilter] = useState<CategoryFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const { weather, mode, refreshLocation } = useWeather();
 
   const filteredProjects = useMemo(() => {
     return projects.filter((project) => {
@@ -36,7 +39,7 @@ export function EngineeringIndexView({ projects }: { projects: PortfolioProject[
   }, [projects, activeFilter, searchQuery]);
 
   return (
-    <div className="site-shell project-page-shell">
+    <WeatherShell className="project-page-shell">
       <header className="hud-header">
         <Link href="/" className="brand-lockup" aria-label="Return to portfolio home">
           <ArrowLeft size={16} />
@@ -44,6 +47,19 @@ export function EngineeringIndexView({ projects }: { projects: PortfolioProject[
           <span className="brand-caption">PIYUSH SHUKLA / WORK</span>
         </Link>
         <div className="hud-actions">
+          {mode === "auto" && weather && (
+            <button
+              type="button"
+              className="weather-gps-indicator"
+              title={`${weather.location} · ${Math.round(weather.temperature)}°C (${weather.condition}). Click to re-sync device GPS.`}
+              onClick={() => refreshLocation()}
+              aria-label="Re-sync device GPS location"
+            >
+              <span className="status-light" />
+              <span className="weather-location-name">{weather.location.split(",")[0]}</span>
+              <span className="weather-temp-badge">{Math.round(weather.temperature)}°C</span>
+            </button>
+          )}
           <Link href="/" className="button button-quiet">
             <ArrowLeft size={13} />
             <span>Portfolio Home</span>
@@ -245,6 +261,6 @@ export function EngineeringIndexView({ projects }: { projects: PortfolioProject[
         </div>
         <span className="footer-year">© {new Date().getFullYear()}</span>
       </footer>
-    </div>
+    </WeatherShell>
   );
 }
