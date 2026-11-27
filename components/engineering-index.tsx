@@ -80,10 +80,6 @@ export function EngineeringIndexView({ projects }: { projects: PortfolioProject[
       <main className="project-page-main">
         {/* Index Hero Header */}
         <section className="section-wrap project-hero-section">
-          <div className="project-hero-badge">
-            <span className="status-light" />
-            <span className="eyebrow">01 ❖ SELECTED WORK · ARCHIVE DIRECTORY</span>
-          </div>
           <h1 className="project-hero-title">Engineering index<span>.</span></h1>
           <p className="project-hero-subtitle">
             Builds shaped by curiosity, constraints, and the details underneath.
