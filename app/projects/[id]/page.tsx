@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowUpRight, CheckCircle2, Cpu, ExternalLink, Github, Layers } from "lucide-react";
 import { featuredProjects, getProject } from "@/lib/projects";
+import { WeatherShell } from "@/components/weather-shell";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -30,7 +31,7 @@ export default async function ProjectDetailPage({ params }: Props) {
   const otherProjects = featuredProjects.filter((p) => p.id !== project.id);
 
   return (
-    <div className="site-shell project-page-shell">
+    <WeatherShell className="project-page-shell">
       <header className="hud-header">
         <Link href="/" className="brand-lockup" aria-label="Return to portfolio home">
           <ArrowLeft size={16} />
@@ -267,6 +268,6 @@ export default async function ProjectDetailPage({ params }: Props) {
         </div>
         <span className="footer-year">© {new Date().getFullYear()}</span>
       </footer>
-    </div>
+    </WeatherShell>
   );
 }
