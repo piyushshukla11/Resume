@@ -104,7 +104,17 @@ export function Portfolio() {
           <Cloud size={14} />
         </div>
         <button className={`focus-toggle${minimal ? " is-active" : ""}`} onClick={() => setMinimal(!minimal)} aria-pressed={minimal}>{minimal ? "Focus on" : "Focus mode"}</button>
-        <button className="export-button" onClick={() => window.print()}><ArrowDownToLine size={14} /><span>Resume PDF</span></button>
+        <a
+          href="/ME.pdf"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="export-button"
+          download="ME.pdf"
+          title="Download official ME.pdf resume"
+        >
+          <ArrowDownToLine size={14} />
+          <span>Resume PDF</span>
+        </a>
       </div>
     </header>
 

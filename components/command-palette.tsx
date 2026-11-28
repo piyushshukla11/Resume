@@ -17,7 +17,8 @@ const commands = [
   { label: "Open LinkedIn", hint: "piyush-shukla-dev", type: "link", value: "https://www.linkedin.com/in/piyush-shukla-dev" },
   { label: "Compose email", hint: "Open in Gmail composer", type: "compose", value: "compose" },
   { label: "Copy email address", hint: "Copy to clipboard", type: "email", value: "email" },
-  { label: "Export resume as PDF", hint: "Print-ready, ATS-friendly layout", type: "print", value: "print" },
+  { label: "Download resume (PDF)", hint: "Download official ME.pdf resume", type: "link", value: "/ME.pdf" },
+  { label: "Export page as PDF", hint: "Print-ready, ATS-friendly layout", type: "print", value: "print" },
   { label: "Toggle focus mode", hint: "Quiet the weather canvas", type: "focus", value: "focus" },
   { label: "Replay intro animation", hint: "ME pixel pop-up & block dissolve", type: "intro", value: "intro" },
 ];
