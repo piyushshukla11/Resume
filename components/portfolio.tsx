@@ -85,19 +85,6 @@ export function Portfolio() {
         <Link href="/contact" onClick={() => setMobileMenu(false)}>Contact</Link>
       </nav>
       <div className="hud-actions">
-        {mode === "auto" && weather && (
-          <button
-            type="button"
-            className="weather-gps-indicator"
-            title={`${weather.location} · ${Math.round(weather.temperature)}°C (${weather.condition}). Click to re-sync device GPS.`}
-            onClick={() => refreshLocation()}
-            aria-label="Re-sync device GPS location"
-          >
-            <span className="status-light" />
-            <span className="weather-location-name">{weather.location.split(",")[0]}</span>
-            <span className="weather-temp-badge">{Math.round(weather.temperature)}°C</span>
-          </button>
-        )}
         <div className="weather-control">
           <label htmlFor="weather-mode" className="sr-only">Weather simulator</label>
           <select
