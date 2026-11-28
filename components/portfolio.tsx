@@ -103,7 +103,6 @@ export function Portfolio() {
           </select>
           <Cloud size={14} />
         </div>
-        <button className={`focus-toggle${minimal ? " is-active" : ""}`} onClick={() => setMinimal(!minimal)} aria-pressed={minimal}>{minimal ? "Focus on" : "Focus mode"}</button>
         <a
           href="/ME.pdf"
           target="_blank"
