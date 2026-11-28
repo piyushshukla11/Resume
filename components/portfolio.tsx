@@ -75,7 +75,7 @@ export function Portfolio() {
   return <div className={`site-shell ${weatherClass}${minimal ? " focus-mode" : ""}`}>
     <WeatherCanvas onProjectSelect={(target) => router.push(target === "work" ? "/work" : `/projects/${target}`)} />
     <header className="hud-header">
-      <a className="brand-lockup" href="#top" aria-label="ME, return to top"><span className="wordmark">ME<span>.</span></span><span className="brand-caption">PIYUSH SHUKLA / PORTFOLIO</span></a>
+      <a className="brand-lockup" href="#top" aria-label="ME, return to top"><span className="wordmark">ME<span>.</span></span></a>
       <button className="mobile-menu-button" aria-label={mobileMenu ? "Close navigation" : "Open navigation"} onClick={() => setMobileMenu((value) => !value)}>{mobileMenu ? <X size={18} /> : <Menu size={18} />}</button>
       <nav className={`primary-nav${mobileMenu ? " is-open" : ""}`} aria-label="Main navigation">
         <Link href="/work" onClick={() => setMobileMenu(false)}>Work</Link>
